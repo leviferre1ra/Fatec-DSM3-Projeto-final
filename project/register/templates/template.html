@@ -1,0 +1,111 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar na sua conta</title>
+    <link href="{% static 'css/style.css' %}" rel="stylesheet"> 
+    
+    <style>
+        /* Ajuste para o título para máxima fidelidade */
+        .title-spacing {
+            margin-bottom: 0.1em;
+        }
+        /* Corrigir o espaçamento entre o campo de senha e o link 'Esqueceu sua senha?' */
+        .forgot-password-container {
+            margin-top: -0.5rem; /* Puxa para cima */
+            margin-bottom: 1.5rem; /* Empurra o botão principal para baixo */
+        }
+        /* Para o tamanho de fonte muito grande do título (similar ao '4.5xl' anterior) */
+        .text-custom-title {
+            font-size: 2.75rem; 
+            line-height: 1; /* Tira o espaço entre as linhas do título */
+        }
+    </style>
+</head>
+<body class="font-[Inter] min-h-screen bg-white flex justify-center p-6">
+
+    <div class="w-full max-w-xs sm:max-w-sm">
+        
+        <header class="mb-8">
+            <h1 class="text-4xl font-extrabold text-black tracking-tight title-spacing">
+                Crie sua conta
+            </h1>
+            <p class="text-base text-gray-600 mt-2">
+                Digite seu e-mail e senha para fazer login
+            </p>
+        </header>
+
+        <form action="#" method="POST" class="space-y-5">
+            
+            <div>
+                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="licinio.sales@example.com" 
+                    value="licinio.sales@example.com" 
+                    required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-base font-normal placeholder-gray-500"
+                >
+            </div>
+
+            <div>
+                <label for="senha" class="block text-sm font-semibold text-gray-700 mb-1">Senha</label>
+                <input 
+                    type="password" 
+                    id="senha" 
+                    name="senha" 
+                    placeholder="************" 
+                    value="************" 
+                    required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-base font-normal"
+                >
+            </div>
+
+            <div class="forgot-password-container">
+                <a href="#" class="block text-sm text-indigo-600 hover:text-indigo-700 font-medium text-right transition duration-150">
+                    Esqueceu sua senha?
+                </a>
+            </div>
+
+            <button 
+                type="submit" 
+                class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition duration-150"
+            >
+                Entrar
+            </button>
+            
+        </form>
+
+        <div class="flex items-center my-6">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-500 text-sm">ou</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        <button 
+            type="button" 
+            class="w-full bg-white text-gray-700 py-3 rounded-lg font-semibold text-base border border-gray-300 hover:bg-gray-50 transition duration-150 flex items-center justify-center"
+        >
+            <svg class="mr-3" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.7 10.22c0-.62-.05-1.22-.16-1.8H10v3.4h5.36c-.23 1.15-.89 2.12-1.89 2.76v2.24h2.89c1.69-1.56 2.64-3.83 2.64-6.4z" fill="#4285F4"/>
+                <path d="M10 20c2.7 0 4.96-.9 6.6-2.45l-2.89-2.24c-.79.52-1.8.84-3.71.84-2.85 0-5.26-1.92-6.12-4.52H1.05v2.32c1.82 3.6 5.56 6.2 8.95 6.2z" fill="#34A853"/>
+                <path d="M3.88 11.98c-.14-.42-.22-.87-.22-1.35s.08-.93.22-1.35V7.06H.99c-.5 1-.8 2.13-.8 3.39s.3 2.39.8 3.39l2.89-2.32z" fill="#FBBC05"/>
+                <path d="M10 3.7c1.47 0 2.7.5 3.7 1.4L16.4 2c-1.64-1.46-3.88-2.4-6.4-2.4C5.56-.4 1.82 2.2 0 5.8l2.89 2.32c.86-2.6 3.27-4.52 6.11-4.52z" fill="#EA4335"/>
+            </svg>
+            Continuar com Google
+        </button>
+
+        <p class="text-center mt-12 text-gray-700 text-base">
+            Ainda não tem uma conta? 
+            <a href="#" class="text-indigo-600 hover:text-indigo-700 font-semibold transition duration-150">Faça o registro</a>
+        </p>
+
+    </div>
+    
+</body>
+</html>
