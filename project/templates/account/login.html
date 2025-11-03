@@ -1,0 +1,96 @@
+{% extends "account/base_entrance.html" %}
+{% load i18n %}
+{% load static %}
+{% load allauth account %}
+{% block head_title %}
+    {% trans "Sign In" %}
+{% endblock head_title %}
+{% block content %}
+<main class="flex flex-row lg:min-h-screen items-center justify-center">
+    <section class="w-full max-w-[600px] px-6 flex flex-col items-center justify-center min-h-screen overflow-y-scroll max-h-screen scrollbar">
+            <h1 class="text-7xl lg:text-8xl font-bold text-center leading-[0.8]">
+            <span class="block">Entre na</span>
+            <span class="block -mt-2">sua conta</span>
+            </h1>
+            <p class="text-center mt-10 font-semibold">
+            Digite seu e-mail e senha para fazer login
+            </p>
+        {% if not SOCIALACCOUNT_ONLY %}
+            
+            {% url 'account_login' as login_url %}
+            {% element form form=form method="post" action=login_url tags="entrance,login" %}
+                {% slot body %}
+                    {% csrf_token %}
+                    {% element fields form=form unlabeled=True %}
+                    {% endelement %}
+                    {{ redirect_field }}
+                {% endslot %}
+                {% slot actions %}
+                    {% element button type="submit" tags="prominent,login" %}
+                        {% trans "Sign In" %}
+                    {% endelement %}
+                {% endslot %}
+            {% endelement %}
+        {% endif %}
+        {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED %}
+            {% element hr %}
+            {% endelement %}
+            {% element button_group vertical=True %}
+                {% if PASSKEY_LOGIN_ENABLED %}
+                    {% element button type="submit" form="mfa_login" id="passkey_login" tags="prominent,login,outline,primary" %}
+                        {% trans "Sign in with a passkey" %}
+                    {% endelement %}
+                {% endif %}
+                {% if LOGIN_BY_CODE_ENABLED %}
+                    {% element button href=request_login_code_url tags="prominent,login,outline,primary" %}
+                        {% trans "Send me a sign-in code" %}
+                    {% endelement %}
+                {% endif %}
+            {% endelement %}
+        {% endif %}
+        {% if SOCIALACCOUNT_ENABLED %}
+            {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+        {% endif %}
+        {% setvar link %}
+                <a href="{{ signup_url }}">
+                {% endsetvar %}
+                {% setvar end_link %}
+                </a>
+            {% endsetvar %}
+            <p class="not_account_yet">
+                {% blocktranslate %}Ainda não tem uma conta? {{ link }}Faça o registro{{ end_link }}{% endblocktranslate %}
+            </p>
+    </section>
+    <section
+        class="hidden lg:flex lg:flex-col lg:items-center lg:justify-center lg:flex-1 bg-[#7083D9] min-h-screen">
+        <img
+          src="{% static 'assets/svg/image1.svg' %}"
+          alt="Ilustração"
+          class="w-2xl"
+        />
+        <h2 class="text-4xl text-white">
+          O primeiro passo para uma cidade limpa é seu
+        </h2>
+    </section>
+</main>
+{% endblock content %}
+{% block extra_body %}
+    {{ block.super }}
+    {% if PASSKEY_LOGIN_ENABLED %}
+        {% include "mfa/webauthn/snippets/login_script.html" with button_id="passkey_login" %}
+    {% endif %}
+    <script>
+        function showPassword() {
+            var inputPass = document.getElementById("password");
+            var btnShowPass = document.getElementById("btn-password");
+
+            if (inputPass.type === "password") {
+                inputPass.setAttribute("type", "text");
+                btnShowPass.setAttribute("src", "/static/assets/svg/invisible.svg");
+            } else {
+                inputPass.setAttribute("type", "password");
+                btnShowPass.setAttribute("src", "/static/assets/svg/eye.svg");
+            }
+        }
+    </script>
+{% endblock %}

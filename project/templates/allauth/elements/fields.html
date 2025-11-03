@@ -1,0 +1,41 @@
+{% load static %}
+{% for field in attrs.form %}
+  <p class="{% if field.errors %}has-error{% endif %}">
+    {{ field.label_tag }}
+
+    {% if field.field.widget.input_type == "password" %}
+      <div class="relative w-full">
+        {{ field }}
+        <img
+          id="btn-password-{{ field.auto_id }}"
+          src="{% static 'assets/svg/eye.svg' %}"
+          alt="Mostrar senha"
+          class="cursor-pointer absolute right-4 top-1/2 transform -translate-y-1/2 h-6 w-6"
+          onclick="togglePassword('{{ field.auto_id }}')"
+        />
+      </div>
+    {% else %}
+      {{ field }}
+    {% endif %}
+
+    {% if field.errors %}{{ field.errors }}{% endif %}
+     {% if field.help_text %}
+      <small class="block text-[16px] text-right w-full text-[#7083D9] font-semibold cursor-pointer mb-4">{{ field.help_text }}</small>
+    {% endif %} 
+  </p>
+{% endfor %}
+
+<script>
+  function togglePassword(id) {
+    const input = document.getElementById(id);
+    const btn = document.getElementById('btn-password-' + id);
+
+    if (input.type === "password") {
+      input.type = "text";
+      btn.src = "{% static 'assets/svg/invisible.svg' %}";
+    } else {
+      input.type = "password";
+      btn.src = "{% static 'assets/svg/eye.svg' %}";
+    }
+  }
+</script>

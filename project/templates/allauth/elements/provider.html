@@ -1,0 +1,15 @@
+{% load static %}
+<li>
+    <a title="{{ attrs.name }}" href="{{ attrs.href }}">
+        {% if attrs.name|lower == "google" %}
+            <img
+                    src="{% static 'assets/svg/google.svg' %}"
+                    alt="Ícone do {{ attrs.name }}"
+                    width="24" height="24"
+                />
+            Continuar com {{ attrs.name }}
+        {% else %}
+            {{ attrs.name }}
+        {% endif %}
+    </a>
+</li>

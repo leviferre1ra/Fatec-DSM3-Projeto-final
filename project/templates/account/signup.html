@@ -1,0 +1,69 @@
+{% extends "account/base_entrance.html" %}
+{% load allauth i18n %}
+{% load static %}
+{% block head_title %}
+    {% trans "Signup" %}
+{% endblock head_title %}
+{% block content %}
+<main class="flex flex-row lg:min-h-screen items-center justify-center">
+    <section class="w-full max-w-[600px] px-6 flex flex-col items-center min-h-screen overflow-y-scroll max-h-screen py-9 scrollbar">
+            <h1 class="text-7xl lg:text-8xl font-bold text-center leading-[0.8]">
+            <span class="block">Crie</span>
+            <span class="block -mt-2">sua conta</span>
+            </h1>
+            <p class="text-center mt-10 font-semibold">
+            Digite seu e-mail e senha para criar sua conta
+            </p>
+            
+    {% if not SOCIALACCOUNT_ONLY %}
+        {% url 'account_signup' as action_url %}
+
+        
+        {% element form form=form method="post" action=action_url tags="entrance,signup" %}
+            {% slot body %}
+                {% csrf_token %}
+                {% element fields form=form unlabeled=True %}
+                {% endelement %}
+                {{ redirect_field }}
+            {% endslot %}
+            {% slot actions %}
+                {% element button tags="prominent,signup" type="submit" class="btn-signup" id="btn-signup" %}
+                    {% trans "Sign Up" %}
+                {% endelement %}
+            {% endslot %}
+        {% endelement %}
+    {% endif %}
+    {% if PASSKEY_SIGNUP_ENABLED %}
+        {% element hr %}
+        {% endelement %}
+        {% element button href=signup_by_passkey_url tags="prominent,signup,outline,primary" %}
+            {% trans "Sign up using a passkey" %}
+        {% endelement %}
+    {% endif %}
+    {% if SOCIALACCOUNT_ENABLED %}
+        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+    {% endif %}
+
+    {% setvar link %}
+            <a href="{{ login_url }}">
+            {% endsetvar %}
+            {% setvar end_link %}
+            </a>
+        {% endsetvar %}
+          <p class="not_account_yet">
+                {% blocktranslate %}Já possui uma conta? {{ link }}Faça o login{{ end_link }}{% endblocktranslate %}
+            </p>
+    </section>
+    <section
+        class="hidden lg:flex lg:flex-col lg:items-center lg:justify-center lg:flex-1 bg-[#7083D9] min-h-screen">
+        <img
+          src="{% static 'assets/svg/image2.svg' %}"
+          alt="Ilustração"
+          class="w-2xl"
+        />
+        <h2 class="text-4xl text-white">
+          Pequenas atitudes, grandes mudanças
+        </h2>
+    </section>
+</main>
+{% endblock content %}

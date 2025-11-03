@@ -1,2 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import 'tailwindcss';
+
+form{
+    @apply w-full mt-10
+}
+
+form label{
+    @apply pl-5 text-xl block mb-3
+}
+
+form #id_login, #id_email, #id_username {
+    @apply w-full rounded-xl border border-[#7083D9] py-4 pr-12 text-xl pl-5 mb-4
+}
+
+form #id_password1, #id_password2 {
+    @apply w-full rounded-xl border border-[#7083D9] py-4 pr-12 text-xl pl-5
+}
+
+form #id_password {
+    @apply w-full rounded-xl border border-[#7083D9] py-4 pr-12 text-xl pl-5 
+}
+
+form button{
+    @apply w-full py-4 bg-[#7083D9] rounded-xl text-white font-medium text-xl cursor-pointer 
+}
+
+form #btn-signup{
+    @apply w-full py-4 bg-[#7083D9] rounded-xl text-white font-medium text-xl cursor-pointer mt-14
+}
+
+form label[for="id_remember"]{
+    @apply inline mb-10 
+}
+
+form input[type="checkbox"]{
+    @apply inline mb-10 cursor-pointer transition-all shadow hover:shadow-md border border-slate-300 bg-white checked:bg-[#7083D9] checked:border-[#7083D9]
+}
+
+ul{
+    @apply w-full
+}
+
+a[title="Google"] {
+  @apply w-full py-4 bg-transparent rounded-xl text-black font-medium text-xl border border-[#7083D9] cursor-pointer flex flex-row justify-center items-center gap-2;
+}
+
+
+#id_password_helptext a{
+    @apply block text-right w-full text-[#7083D9] font-semibold cursor-pointer mb-4
+}
+
+.not_account_yet{
+    @apply mt-15 text-center font-semibold
+}
+
+.not_account_yet a{
+    @apply text-[#7083D9]
+}
+
+@layer utilities {
+    .scrollbar::-webkit-scrollbar{
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+        display: none;
+    }
+}
+
