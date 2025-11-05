@@ -111,6 +111,11 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_AUTHENTICATION_METHOD="email"
 ACCOUNT_EMAIL_REQUIRED=True
+
+ACCOUNT_FORMS = {
+    'signup': 'project.forms.CustomSignupForm',
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
