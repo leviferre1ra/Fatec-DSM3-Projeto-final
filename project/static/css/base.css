@@ -66,3 +66,218 @@ a[title="Google"] {
     }
 }
 
+   * {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', bold;
+  display: grid;
+  grid-template-columns: 450px 1fr;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+/* Painel lateral */
+.sidebar {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 30px;
+  border-radius: 10px;
+  box-shadow: 10px 0px 6px rgba(0, 0, 0, 0.15); 
+  z-index: 2; 
+}
+
+/* Perfil */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 35px;
+}
+
+.profile img {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.3px solid #000000;
+}
+
+.profile-name {
+  font-weight: 500;
+  color: #000000;
+  font-size: 1.2rem;
+}
+
+/* Contagem regressiva */
+.countdown {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.countdown h2 {
+  color: #000000;
+  font-weight: 500;
+  margin: 0;
+}
+
+.countdown h1 {
+  font-size: 6.5rem;
+  color: #7083D9;
+  margin: 0px 0 0;
+  font-weight: 700;
+}
+
+/* Próxima coleta */
+.next-collection {
+  background-color: #7083D9;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 23px;
+  box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.15);
+  z-index: 3;
+}
+
+.next-collection p {
+  margin: 5px 3;
+  font-size: 1.30rem;
+  font-weight: 400;
+}
+
+
+/* Alerta */
+.alert {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.alert h2 {
+  margin: 0 0 0 0;
+  color: #000000;
+  font-weight: 600;
+}
+
+.alert a {
+  color: #7083D9;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.alert a:hover {
+  text-decoration: underline;
+}
+
+/* Seção de contribuições e coletas */
+.contributions-section {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Blocos individuais */
+.contributions,
+.recent-collections {
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 0 1 48%;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.15);
+
+  z-index: 3;
+}
+
+/* Aparência específicas */
+.contributions {
+  background-color: #cbe74e;
+  text-align: center;
+  font-weight: 600;
+  color: #000000;
+}
+
+.contributions p {
+  font-size: 1rem;
+  color: #4e4e4e;
+  font-weight: 700;
+}
+
+.contributions h1 {
+  font-size: 6.0rem;
+  margin: 8px 0;
+}
+
+.recent-collections {
+  background-color: #ffb84d;
+  color: #000000;
+  font-size: 0.92rem;
+  justify-items: center;
+}
+
+.recent-collections h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.recent-collections ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 6px;
+}
+
+.recent-collections li {
+  padding: 4px 0;
+  font-weight: 500;
+  border-bottom: 1px dashed rgba(0,0,0,0.06);
+}
+
+.recent-collections li:last-child {
+  border-bottom: none;
+}
+
+/* Responsivo */
+@media (max-width: 420px) {
+  .contributions-section {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .contributions,
+  .recent-collections {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
+/* Rodapé */
+footer {
+  text-align: center;
+  font-size: 1rem;
+  margin-top: auto;
+  font-weight: 600;
+  color: #4e4e4e;
+}
+
+footer a {
+  color: #7083D9;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Mapa */
+.map {
+  width: 100%;
+  height: 100%;
+  z-index: 1; 
+}
