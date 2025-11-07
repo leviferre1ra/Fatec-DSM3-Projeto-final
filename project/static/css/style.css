@@ -919,7 +919,7 @@ form label {
   font-size: var(--text-xl);
   line-height: var(--tw-leading, var(--text-xl--line-height));
 }
-form #id_login, #id_email, #id_username {
+form #id_login, #id_email, #id_username, #id_password1 {
   margin-bottom: calc(var(--spacing) * 4);
   width: 100%;
   border-radius: var(--radius-xl);
@@ -932,7 +932,7 @@ form #id_login, #id_email, #id_username {
   font-size: var(--text-xl);
   line-height: var(--tw-leading, var(--text-xl--line-height));
 }
-form #id_password1, #id_password2 {
+form #id_password2 {
   width: 100%;
   border-radius: var(--radius-xl);
   border-style: var(--tw-border-style);

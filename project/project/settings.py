@@ -113,6 +113,11 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_AUTHENTICATION_METHOD="email"
 ACCOUNT_EMAIL_REQUIRED=True
 
+ACCOUNT_FORMS = {
+    'signup': 'project.forms.CustomSignupForm',
+}
+
+
 LOGIN_REDIRECT_URL = ""
 
 # Internationalization
