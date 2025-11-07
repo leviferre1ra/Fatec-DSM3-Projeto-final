@@ -1,71 +1,75 @@
+{% extends "allauth/layouts/base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/css/base.css">
-    <title>De Olho No Lixo</title>
-</head>
-<body>
-<aside class="sidebar">
+{% block content %}
+
+<div class="m-0 font-[Inter] font-bold grid grid-cols-[450px_1fr] h-screen bg-white box-border ">
+
+  <!-- Painel lateral -->
+  <aside class="bg-white flex flex-col p-[30px] rounded-[10px] shadow-[10px_0px_6px_rgba(0,0,0,0.15)] z-[2]">
+
     <!-- Perfil -->
-    <div class="profile">
-      <img src="https://via.placeholder.com/45" alt="Foto do usuário">
-      <span class="profile-name">Licínio Sales</span>
+    <div class="flex items-center gap-[10px] mb-[35px]">
+      <img src="https://via.placeholder.com/45" alt="Foto do usuário"
+           class="w-[65px] h-[65px] rounded-full object-cover border-[2.3px] border-black">
+      <span class="font-medium text-black text-[1.2rem]">{{ user.first_name|default:user.username }}</span>
     </div>
 
     <!-- Contagem regressiva -->
-    <div class="countdown">
-      <h2>A coleta chegará em:</h2>
-      <h1>00:47</h1>
+    <div class="text-center mb-[18px]">
+      <h2 class="m-0 text-black font-semibold text-[1.5rem]">A coleta começa em:</h2>
+      <h1 class="text-[6.5rem] text-[#7083D9] font-bold m-0">00:47</h1>
     </div>
 
     <!-- Próxima coleta -->
-    <div class="next-collection">
-      <p><strong>Próxima Coleta:</strong> 28/09/2025</p>
-      <p><strong>Horário Previsto:</strong> 14:00</p>
+    <div class="bg-[#7083D9] text-white rounded-[10px] p-4 text-center mb-[23px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3]">
+      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Próxima Coleta:</strong> 28/09/2025</p>
+      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Horário Previsto:</strong> 14:00</p>
     </div>
 
     <!-- Alerta -->
-    <div class="alert">
-      <h2>Perdeu o horário da coleta?</h2>
-      <a href="#">Crie um alerta para lembrar</a>
+    <div class="text-center mb-[25px]">
+      <h2 class="m-0 text-black font-semibold text-[1.5rem]">Perdeu o horário da coleta?</h2>
+      <a href="#" class="text-[#7083D9] no-underline font-semibold text-[1.2rem] hover:underline">Crie um alerta para lembrar</a>
     </div>
 
-    <!-- Contribuições -->
-    <div class="contributions-section">
-    <div class="contributions">
-        <p>Você contribuiu com</p>
-        <h1>15</h1>
-        <p>Coletas</p>
-    </div>
+    <!-- Contribuições e últimas coletas -->
+    <div class="flex gap-[12px] items-stretch justify-between mb-[20px] w-full max-[420px]:flex-col">
 
-    <div class="recent-collections">
-        <h3>Últimas coletas</h3>
-        <ul>
-        <li>21/09/2025</li>
-        <li>13/09/2025</li>
-        <li>06/09/2025</li>
-        <li>01/08/2025</li>
-        <li>XX/XX/2025</li>
-        <li>XX/XX/2025</li>
-        <li>XX/XX/2025</li>
+      <!-- Contribuições -->
+      <div class="bg-[#cbe74e] text-center font-semibold text-black rounded-[10px] p-[14px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] flex-1">
+        <p class="text-[0.9rem] mt-5 text-[#4e4e4e] font-bold">Você contribuiu com</p>
+        <h1 class="text-[6rem] m-[8px_0]">15</h1>
+        <p class="text-[0.9rem] text-[#4e4e4e] font-bold">Coletas</p>
+      </div>
+
+      <!-- Últimas coletas -->
+      <div class="bg-[#ffb84d] text-[#4e4e4e] text-[0.92rem] rounded-[10px] p-[14px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] flex-1 text-center">
+        <h3 class=" text-black m-0 mb-[8px] text-[0.9rem]">Últimas coletas</h3>
+        <ul class="list-none m-0 px-[6px] text-[#4e4e4e">
+          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">21/09/2025</li>
+          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">13/09/2025</li>
+          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">06/09/2025</li>
+          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">01/08/2025</li>
+          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">XX/XX/2025</li>
+          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">XX/XX/2025</li>
+          <li class="py-[4px] font-medium">XX/XX/2025</li>
         </ul>
-    </div>
+      </div>
     </div>
 
-    <footer>
-      Precisa de ajuda? <a href="#">Clique aqui</a>
+      <!-- Rodapé -->
+    <footer class="text-center text-[0.9rem] mt-auto font-semibold text-[#4e4e4e]">
+      Precisa de ajuda? <a href="#" class="text-[#7083D9] no-underline hover:underline">Clique aqui</a>
     </footer>
   </aside>
 
-  <main class="map">
-    <!-- Mapa de exemplo -->
+  <!-- Mapa -->
+  <main class="w-full h-full z-[1]">
     <iframe 
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3667.6817632262524!2d-46.4022108256321!3d-23.18853924793272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ced82a9557c3e3%3A0x2e91818dc74e0f29!2sPra%C3%A7a%20Dezenove%20de%20Janeiro!5e0!3m2!1spt-BR!2sbr!4v1694567890123"
       width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
     </iframe>
   </main>
-</body>
-</html>
+</div>
+
+{% endblock content %}

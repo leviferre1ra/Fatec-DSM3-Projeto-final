@@ -14,9 +14,11 @@
         {% endblock extra_head %}
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <script src="{% static 'scripts/password.js' %}"></script>
+        
     </head>
     <body>
         {% block body %}
+        <div class="absolute">
             {% if messages %}
                 <div>
                     <strong>{% trans "Messages:" %}</strong>
@@ -26,63 +28,108 @@
                 </div>
             {% endif %}
             <div>
-                {% comment %} <strong>{% trans "Menu:" %}</strong> {% endcomment %}
                 <ul>
                     {% if user.is_authenticated %}
-                        {% url 'account_email' as email_url_ %}
-                        {% if email_url_ %}
-                            <li>
-                                <a href="{{ email_url_ }}">{% trans "Change Email" %}</a>
-                            </li>
-                        {% endif %}
-                        {% url 'account_change_password' as change_password_url_ %}
-                        {% if change_password_url_ %}
-                            <li>
-                                <a href="{{ change_password_url_ }}">{% trans "Change Password" %}</a>
-                            </li>
-                        {% endif %}
-                        {% url 'socialaccount_connections' as connections_url_ %}
-                        {% if connections_url_ %}
-                            <li>
-                                <a href="{{ connections_url_ }}">{% trans "Account Connections" %}</a>
-                            </li>
-                        {% endif %}
-                        {% url 'mfa_index' as mfa_url_ %}
-                        {% if mfa_url_ %}
-                            <li>
-                                <a href="{{ mfa_url_ }}">{% trans "Two-Factor Authentication" %}</a>
-                            </li>
-                        {% endif %}
-                        {% url 'usersessions_list' as usersessions_list_url_ %}
-                        {% if usersessions_list_url_ %}
-                            <li>
-                                <a href="{{ usersessions_list_url_ }}">{% trans "Sessions" %}</a>
-                            </li>
-                        {% endif %}
-                        {% url 'account_logout' as logout_url_ %}
-                        {% if logout_url_ %}
-                            <li>
-                                <a href="{{ logout_url_ }}">{% trans "Sign Out" %}</a>
-                            </li>
-                        {% endif %}
-                    {% else %}
-                        {% comment %} {% url 'account_login' as login_url_ %}
-                        {% if login_url_ %}
-                            <li>
-                                <a href="{{ login_url_ }}">{% trans "Sign In" %}</a>
-                            </li>
-                        {% endif %}
-                        {% url 'account_signup' as signup_url_ %}
-                        {% if signup_url_ %}
-                            <li>
-                                <a href="{{ signup_url_ }}">{% trans "Sign Up" %}</a>
-                            </li>
-                        {% endif %} {% endcomment %}
-                    {% endif %}
+
+
+                    <button id="menu-btn"
+                        class="fixed top-4 right-4 z-[60] flex flex-col justify-between w-9 h-9 items-center p-2.25 hover:bg-[#5463a5] transition rounded-md bg-[#7083D9] focus:outline-none">
+                        <span class="block h-0.5 w-6 bg-white rounded transition-all duration-300"></span>
+                        <span class="block h-0.5 w-6 bg-white rounded transition-all duration-300"></span>
+                        <span class="block h-0.5 w-6 bg-white rounded transition-all duration-300"></span>
+                    </button>
+
+                    <div id="menu-overlay"
+                        class="fixed inset-0 bg-black/40 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+
+                        <div id="menu"
+                        class="fixed top-0 right-0 h-full w-64 bg-[#7083D9] shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+                        <div class="p-6 flex flex-col gap-5 text-white font-semibold text-lg">
+                            <div class="flex items-center gap-5 pb-3 ">
+
+                                <nav class="flex flex-col gap-5  mt-14">
+                                    {% url 'home' as home %}
+                                    {% if home %} 
+                                        <li>
+                                            <a href="{{ home }}">{% trans "Página inicial" %}</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% comment %} div começa aqui - CONFIGURAÇÕES {% endcomment %}
+                                    {% url 'account_email' as email_url_ %}
+                                    {% if email_url_ %}
+                                        <li>
+                                            <a href="{{ email_url_ }}">{% trans "Change Email" %}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% url 'account_change_password' as change_password_url_ %}
+                                    {% if change_password_url_ %}
+                                        <li>
+                                            <a href="{{ change_password_url_ }}">{% trans "Change Password" %}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% url 'socialaccount_connections' as connections_url_ %}
+                                    {% if connections_url_ %}
+                                        <li>
+                                            <a href="{{ connections_url_ }}">{% trans "Account Connections" %}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% url 'mfa_index' as mfa_url_ %}
+                                    {% if mfa_url_ %}
+                                        <li>
+                                            <a href="{{ mfa_url_ }}">{% trans "Two-Factor Authentication" %}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% url 'usersessions_list' as usersessions_list_url_ %}
+                                    {% if usersessions_list_url_ %}
+                                        <li>
+                                            <a href="{{ usersessions_list_url_ }}">{% trans "Sessions" %}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% url 'account_logout' as logout_url_ %}
+                                    {% if logout_url_ %}
+                                        <li>
+                                            <a href="{{ logout_url_ }}">{% trans "Sign Out" %}</a>
+                                        </li>
+                                    {% endif %}
+                                    {% comment %} div termina aqui - CONFIGURAÇÕES {% endcomment %}
+                                </nav>
+                            </div>
+                        </div>
+                    {% endif %}                       
                 </ul>
             </div>
+        </div>    
+        
             {% block content %}
             {% endblock content %}
+             <script>
+                const btn = document.getElementById('menu-btn');
+                const menu = document.getElementById('menu');
+                const overlay = document.getElementById('menu-overlay');
+                const spans = btn.querySelectorAll('span');
+
+                function toggleMenu() {
+                    const isOpen = !menu.classList.contains('translate-x-full');
+                    menu.classList.toggle('translate-x-full');
+                    overlay.classList.toggle('hidden');
+                    setTimeout(() => overlay.classList.toggle('opacity-0'), 10);
+
+                    // animação do botão (vira um X)
+                    spans[0].classList.toggle('rotate-45');
+                    spans[0].classList.toggle('translate-y-2');
+                    spans[1].classList.toggle('opacity-0');
+                    spans[2].classList.toggle('-rotate-45');
+                    spans[2].classList.toggle('-translate-y-2');
+                }
+
+                btn.addEventListener('click', toggleMenu);
+                overlay.addEventListener('click', toggleMenu);
+
+                document.querySelectorAll('#menu a').forEach(link => {
+                    link.addEventListener('click', toggleMenu);
+                });
+            </script>
         {% endblock body %}
         {% block extra_body %}
         {% endblock extra_body %}
