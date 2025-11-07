@@ -110,13 +110,14 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 ACCOUNT_AUTHENTICATION_METHOD="email"
 ACCOUNT_EMAIL_REQUIRED=True
 
 ACCOUNT_FORMS = {
     'signup': 'project.forms.CustomSignupForm',
 }
-
 
 LOGIN_REDIRECT_URL = ""
 

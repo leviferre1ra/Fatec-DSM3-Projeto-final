@@ -2,10 +2,10 @@
 
 {% block content %}
 
-<div class="m-0 font-[Inter] font-bold grid grid-cols-[450px_1fr] h-screen bg-white box-border ">
+<div class="m-0 font-[Inter] font-bold grid grid-cols-[450px_1fr] bg-white box-border">
 
   <!-- Painel lateral -->
-  <aside class="bg-white flex flex-col p-[30px] rounded-[10px] shadow-[10px_0px_6px_rgba(0,0,0,0.15)] z-[2]">
+  <aside class="bg-white flex flex-col p-[30px] overflow-y-scroll max-h-screen py-9 scrollbar shadow-[10px_0px_6px_rgba(0,0,0,0.15)] z-[2]">
 
     <!-- Perfil -->
     <div class="flex items-center gap-[10px] mb-[35px]">
@@ -67,7 +67,7 @@
   <main class="w-full h-full z-[1]">
     <iframe 
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3667.6817632262524!2d-46.4022108256321!3d-23.18853924793272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ced82a9557c3e3%3A0x2e91818dc74e0f29!2sPra%C3%A7a%20Dezenove%20de%20Janeiro!5e0!3m2!1spt-BR!2sbr!4v1694567890123"
-      width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+      allowfullscreen="" loading="lazy" class="border-0 w-full h-screen">
     </iframe>
   </main>
 </div>
