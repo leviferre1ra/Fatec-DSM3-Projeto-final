@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'user_data_api',
+    'city_data_api',
 ]
 
 MIDDLEWARE = [

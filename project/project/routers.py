@@ -1,6 +1,6 @@
 class MultiDBRouter:
     
-    route_app_labels = {'user_data_api'}
+    route_app_labels = {'user_data_api','city_data_api'}
 
     def db_for_read(self, model, **hints):
         if model._meta.app_label in self.route_app_labels:

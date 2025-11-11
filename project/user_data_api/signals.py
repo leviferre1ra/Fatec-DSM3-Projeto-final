@@ -13,7 +13,7 @@ User = get_user_model()
 @receiver(post_save, sender=User)
 def create_user_data_via_api(sender, instance=None, created=False, **kwargs):
     if created:
-        api_url = f"{settings.API_BASE_URL}/api/user_data/"
+        api_url = f"{settings.API_BASE_URL}/users/user_data/"
         service_token = settings.SERVICE_API_TOKEN
         
         headers = {
@@ -47,7 +47,7 @@ def create_user_data_via_api(sender, instance=None, created=False, **kwargs):
 @receiver(post_delete, sender=User)
 def delete_user_data_from_api(sender, instance, **kwargs):
     user_id = instance.pk 
-    api_url = f"{settings.API_BASE_URL}/api/user_data/{user_id}/"
+    api_url = f"{settings.API_BASE_URL}/users/user_data/{user_id}/"
     service_token = settings.SERVICE_API_TOKEN
     
     headers = {
