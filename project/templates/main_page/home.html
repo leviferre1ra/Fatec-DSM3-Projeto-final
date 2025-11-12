@@ -65,11 +65,54 @@
 
   <!-- Mapa -->
   <main class="w-full h-full z-[1]">
-    <iframe 
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3667.6817632262524!2d-46.4022108256321!3d-23.18853924793272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ced82a9557c3e3%3A0x2e91818dc74e0f29!2sPra%C3%A7a%20Dezenove%20de%20Janeiro!5e0!3m2!1spt-BR!2sbr!4v1694567890123"
-      allowfullscreen="" loading="lazy" class="border-0 w-full h-screen">
-    </iframe>
+    <div id="map" class="w-full h-screen"></div>
   </main>
 </div>
+
+<!-- Leaflet CSS e JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // Inicializar mapa
+   const map = L.map('map').setView([-24.0053, -46.4124], 15);
+
+  // Adicionar tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+
+  // Layer GeoJSON para as zonas de coleta
+  const geoJsonLayer = L.geoJSON(null, {
+    style: function(feature) {
+      return {
+        color: '#7083D9',
+        weight: 2,
+        opacity: 0.8,
+        fillOpacity: 0.3,
+        fillColor: '#7083D9'
+      };
+    },
+    onEachFeature: function(feature, layer) {
+      const props = feature.properties;
+      const dias = props.Dias.join(', ');
+      const popupContent = `
+        <div class="popup-content">
+          <b>${props.Bairro}</b><br>
+          <strong>Dias:</strong> ${dias}<br>
+          <strong>Período:</strong> ${props.Período}<br>
+          <strong>Horário:</strong> ${props.Horário}
+        </div>
+      `;
+      layer.bindPopup(popupContent);
+    }
+  }).addTo(map);
+
+  // Dados GeoJSON passados do backend
+  const geojsonData = {{ geojson|safe }};
+  geoJsonLayer.addData(geojsonData);
+</script>
 
 {% endblock content %}
