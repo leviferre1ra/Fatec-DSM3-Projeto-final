@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main_page.urls')),
     path('accounts/', include('allauth.urls')),
+    path('users/', include('user_data_api.urls')),
+    path("coleta/", include("city_data_api.urls")),
 ]

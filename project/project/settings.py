@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=!h7%&cl&&3cyn&9ff9u%s_rd)+y(z1s66b9icm=yn*0x7*@j*'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','localhost']
 
 
 # Application definition
@@ -42,6 +46,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'main_page',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'user_data_api',
+    'city_data_api',
 ]
 
 MIDDLEWARE = [
@@ -49,10 +57,10 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware', 
+    'django.contrib.auth.middleware.AuthenticationMiddleware', 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -83,9 +91,31 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'mongodb': {
+        'ENGINE': 'django_mongodb_backend',
+        'NAME': 'mongodb',
+        'HOST': os.environ.get('DATABASES_MONGODB_HOST'), 
     }
 }
 
+DATABASE_ROUTERS = ['project.routers.MultiDBRouter']
+
+# Api config
+
+API_BASE_URL = os.environ.get('API_BASE_URL')
+
+SERVICE_API_TOKEN = os.environ.get('SERVICE_API_TOKEN')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication', 
+        'rest_framework.authentication.SessionAuthentication', 
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -110,16 +140,29 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# Django-allauth config
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-ACCOUNT_AUTHENTICATION_METHOD="email"
-ACCOUNT_EMAIL_REQUIRED=True
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+
+LOGIN_REDIRECT_URL = "home" 
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'name':'Google',
+            'client_id': os.environ.get('SOCIAL_APP_CLIENT_ID'),
+            'secret': os.environ.get('SOCIAL_APP_SECRET_KEY'),
+            'key': ''
+        }
+    }
+}
 
 ACCOUNT_FORMS = {
     'signup': 'project.forms.CustomSignupForm',
 }
-
-LOGIN_REDIRECT_URL = ""
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
