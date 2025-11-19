@@ -18,6 +18,7 @@
     <div class="bg-white p-8 rounded-lg max-w-md text-center">
         <select id="dropdown-bairros" class="w-full p-3 mb-6 border border-gray-300 rounded-lg text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
             <option value="" disabled selected>Escolha um bairro...</option>
+            <option value="todos">Todos</option>
             <option value="Anhanguera">Anhanguera</option>
             <option value="Antartica">Antártica</option>
             <option value="Aviacao">Aviação</option>
@@ -71,7 +72,7 @@
   <div class="w-full mb-[25px] flex justify-center">
     <div class="bg-[#ffb84d] text-[#4e4e4e] text-[1rem] rounded-[10px] p-[14px]
       shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] text-center
-      w-[250px] mx-auto w-full">
+      mx-auto w-full">
 
       <h3 class="text-black m-0 mb-[8px] text-[1.1rem]">Últimas coletas</h3>
 
@@ -106,6 +107,9 @@
   let map;
   let geoJsonLayer;
   let bairroSelecionado = localStorage.getItem('bairroSelecionado') || '';
+  let initialGeojson = null;
+  // Dia atual (passado do backend)
+  const diaAtual = "{{ dia_atual|escapejs }}";
 
   // Inicializar mapa
   function inicializarMapa() {
@@ -118,17 +122,21 @@
 
     geoJsonLayer = L.geoJSON(null, {
       style: function(feature) {
+        const props = feature.properties || {};
+        const dias = Array.isArray(props.Dias) ? props.Dias : [];
+        const isActive = dias.includes(diaAtual);
         return {
-          color: '#7083D9',
+          color: isActive ? '#7083D9' : '#A6A6A6',
           weight: 2,
           opacity: 0.8,
           fillOpacity: 0.3,
-          fillColor: '#7083D9'
+          fillColor: isActive ? '#7083D9' : '#A6A6A6'
         };
       },
       onEachFeature: function(feature, layer) {
-        const props = feature.properties;
-        const dias = props.Dias.join(', ');
+        const props = feature.properties || {};
+        const diasArray = Array.isArray(props.Dias) ? props.Dias : [];
+        const dias = diasArray.join(', ');
         const popupContent = `
           <div class="popup-content">
             <b>${props.Bairro}</b><br>
@@ -164,8 +172,18 @@
   // Listener para mudança no dropdown
   document.getElementById('dropdown-bairros').addEventListener('change', function() {
     const bairro = this.value;
-    
+
     if (!bairro) {
+      return;
+    }
+
+    // Caso especial: mostrar todos os bairros (restaurar visão completa)
+    if (bairro === 'todos') {
+      localStorage.removeItem('bairroSelecionado');
+      if (initialGeojson) {
+        carregarGeojson(initialGeojson);
+        console.log('Mostrando todos os bairros');
+      }
       return;
     }
 
@@ -191,13 +209,16 @@
     inicializarMapa();
     
     // Dados GeoJSON passados do backend
-    const geojsonData = {{ geojson|safe }};
-    carregarGeojson(geojsonData);
+    initialGeojson = {{ geojson|safe }};
+    carregarGeojson(initialGeojson);
 
     // Restaurar bairro selecionado do localStorage
+    const dropdown = document.getElementById('dropdown-bairros');
     if (bairroSelecionado) {
-      const dropdown = document.getElementById('dropdown-bairros');
       dropdown.value = bairroSelecionado;
+    } else {
+      // por padrão, mostrar todos
+      dropdown.value = 'todos';
     }
   });
 </script>
