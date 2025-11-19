@@ -13,7 +13,42 @@
            class="w-[65px] h-[65px] rounded-full object-cover border-[2.3px] border-black">
       <span class="font-medium text-black text-[1.2rem]">{{ user.first_name|default:user.username }}</span>
     </div>
-    
+
+    <!-- Modal de seleção de bairro -->
+    <div class="bg-white p-8 rounded-lg max-w-md text-center">
+        <select id="dropdown-bairros" class="w-full p-3 mb-6 border border-gray-300 rounded-lg text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
+            <option value="" disabled selected>Escolha um bairro...</option>
+            <option value="Anhanguera">Anhanguera</option>
+            <option value="Antartica">Antártica</option>
+            <option value="Aviacao">Aviação</option>
+            <option value="Boqueirao">Boqueirão</option>
+            <option value="Caicara">Caiçara</option>
+            <option value="Canto do Forte">Canto do Forte</option>
+            <option value="Cidade da Crianca">Cidade da Criança</option>
+            <option value="Esmeralda">Esmeralda</option>
+            <option value="Florida">Flórida</option>
+            <option value="Gloria">Glória</option>
+            <option value="Guilhermina">Guilhermina</option>
+            <option value="Maracana">Maracanã</option>
+            <option value="Melvi">Melvi</option>
+            <option value="Mirim">Mirim</option>
+            <option value="Nova Mirim">Nova Mirim</option>
+            <option value="Ocian">Ocian</option>
+            <option value="Princesa">Princesa</option>
+            <option value="Quietude">Quietude</option>
+            <option value="real">Real</option>
+            <option value="Ribeiropolis">Ribeirópolis</option>
+            <option value="Samambaia">Samambaia</option>
+            <option value="Santa Marina">Santa Marina</option>
+            <option value="Sitio do Campo">Sítio do Campo</option>
+            <option value="Solemar">Solemar</option>
+            <option value="Tupi">Tupi</option>
+            <option value="Tupiry">Tupiry</option>
+            <option value="vila sonia">Vila Sônia</option>
+        </select>
+    </div>
+
+
     <!-- Contagem regressiva -->
     <div class="text-center mb-[18px]">
       <h2 class="m-0 text-black font-semibold text-[1.5rem]">A coleta começa em:</h2>
@@ -68,45 +103,103 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+  let map;
+  let geoJsonLayer;
+  let bairroSelecionado = localStorage.getItem('bairroSelecionado') || '';
+
   // Inicializar mapa
-   const map = L.map('map').setView([-24.0053, -46.4124], 15);
+  function inicializarMapa() {
+    map = L.map('map').setView([-24.0053, -46.4124], 15);
 
-  // Adicionar tile layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
-  }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
 
+    geoJsonLayer = L.geoJSON(null, {
+      style: function(feature) {
+        return {
+          color: '#7083D9',
+          weight: 2,
+          opacity: 0.8,
+          fillOpacity: 0.3,
+          fillColor: '#7083D9'
+        };
+      },
+      onEachFeature: function(feature, layer) {
+        const props = feature.properties;
+        const dias = props.Dias.join(', ');
+        const popupContent = `
+          <div class="popup-content">
+            <b>${props.Bairro}</b><br>
+            <strong>Dias:</strong> ${dias}<br>
+            <strong>Período:</strong> ${props.Período}<br>
+            <strong>Horário:</strong> ${props.Horário}
+          </div>
+        `;
+        layer.bindPopup(popupContent);
+      }
+    }).addTo(map);
+  }
 
-  // Layer GeoJSON para as zonas de coleta
-  const geoJsonLayer = L.geoJSON(null, {
-    style: function(feature) {
-      return {
-        color: '#7083D9',
-        weight: 2,
-        opacity: 0.8,
-        fillOpacity: 0.3,
-        fillColor: '#7083D9'
-      };
-    },
-    onEachFeature: function(feature, layer) {
-      const props = feature.properties;
-      const dias = props.Dias.join(', ');
-      const popupContent = `
-        <div class="popup-content">
-          <b>${props.Bairro}</b><br>
-          <strong>Dias:</strong> ${dias}<br>
-          <strong>Período:</strong> ${props.Período}<br>
-          <strong>Horário:</strong> ${props.Horário}
-        </div>
-      `;
-      layer.bindPopup(popupContent);
+  // Calcular centro e bounds das features
+  function centralizarNoMapa(geojsonData) {
+    if (!geojsonData || !geojsonData.features || geojsonData.features.length === 0) {
+      return;
     }
-  }).addTo(map);
 
-  // Dados GeoJSON passados do backend
-  const geojsonData = {{ geojson|safe }};
-  geoJsonLayer.addData(geojsonData);
+    const bounds = L.geoJSON(geojsonData).getBounds();
+    map.fitBounds(bounds, { padding: [50, 50] });
+  }
+
+  // Carregar dados do GeoJSON inicial
+  function carregarGeojson(geojsonData) {
+    if (geoJsonLayer) {
+      geoJsonLayer.clearLayers();
+      geoJsonLayer.addData(geojsonData);
+    }
+    centralizarNoMapa(geojsonData);
+  }
+
+  // Listener para mudança no dropdown
+  document.getElementById('dropdown-bairros').addEventListener('change', function() {
+    const bairro = this.value;
+    
+    if (!bairro) {
+      return;
+    }
+
+    // Salvar bairro selecionado no localStorage
+    localStorage.setItem('bairroSelecionado', bairro);
+
+    // Fazer requisição AJAX
+    fetch(`/api/carregar-bairro/?bairro=${encodeURIComponent(bairro)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          carregarGeojson(data.geojson);
+          console.log('Bairro carregado:', bairro);
+        } else {
+          console.error('Erro ao carregar bairro:', data.error);
+        }
+      })
+      .catch(error => console.error('Erro:', error));
+  });
+
+  // Inicializar na primeira carga
+  document.addEventListener('DOMContentLoaded', function() {
+    inicializarMapa();
+    
+    // Dados GeoJSON passados do backend
+    const geojsonData = {{ geojson|safe }};
+    carregarGeojson(geojsonData);
+
+    // Restaurar bairro selecionado do localStorage
+    if (bairroSelecionado) {
+      const dropdown = document.getElementById('dropdown-bairros');
+      dropdown.value = bairroSelecionado;
+    }
+  });
 </script>
 
 {% endblock content %}
