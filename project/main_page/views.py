@@ -41,10 +41,10 @@ def home(request):
             features.append({
                 "type": "Feature",
                 "properties": {
-                    "Bairro": bairro.get('nome', 'Sem nome'),
-                    "Dias": bairro.get('dias', []),
-                    "Período": bairro.get('periodo', ''),
-                    "Horário": bairro.get('horario', '')
+                    "Bairro": bairro.get('properties').get('Bairro', 'Sem nome'),
+                    "Dias": bairro.get('properties').get('Dias', []),
+                    "Período": bairro.get('properties').get('Período', ''),
+                    "Horário": bairro.get('properties').get('Horário', '')
                 },
                 "geometry": bairro['geometry']
             })

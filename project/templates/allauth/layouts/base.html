@@ -107,10 +107,10 @@
                         </button>
 
                         <div id="settings-menu"
-                        class="flex flex-col gap-3 mt-3 ml-4 overflow-hidden max-h-0 transition-all duration-300">
+                        class="flex flex-col gap-3 ml-4 overflow-hidden max-h-0 transition-all duration-300">
                         {% url 'account_email' as email_url_ %}
                         {% if email_url_ %}
-                        <a href="{{ email_url_ }}" class="text-[15px] hover:bg-[#6375c7] hover:text-gray-100 transition-colors duration-300 rounded-lg px-2 py-1 block">{% trans "Alterar e-mail" %}</a>
+                        <a href="{{ email_url_ }}" class="text-[15px] hover:bg-[#6375c7] hover:text-gray-100 transition-colors duration-300 rounded-lg px-2 py-1 block mt-3">{% trans "Alterar e-mail" %}</a>
                         {% endif %}
 
                         {% url 'account_change_password' as change_password_url_ %}
@@ -175,7 +175,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-        // === MENU LATERAL ===
+        // === MENU LATERAL DIREITO ===
         const btn = document.getElementById('menu-btn');
         const menu = document.getElementById('menu');
         const overlay = document.getElementById('menu-overlay');

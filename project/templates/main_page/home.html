@@ -4,7 +4,7 @@
 
 <div class="m-0 font-[Inter] font-bold grid grid-cols-[450px_1fr] bg-white box-border">
 
-  <!-- Painel lateral -->
+  <!-- Painel lateral esquerdo -->
   <aside class="bg-white flex flex-col p-[30px] overflow-y-scroll max-h-screen py-9 scrollbar shadow-[10px_0px_6px_rgba(0,0,0,0.15)] z-[2]">
 
     <!-- Perfil -->
@@ -13,7 +13,7 @@
            class="w-[65px] h-[65px] rounded-full object-cover border-[2.3px] border-black">
       <span class="font-medium text-black text-[1.2rem]">{{ user.first_name|default:user.username }}</span>
     </div>
-
+    
     <!-- Contagem regressiva -->
     <div class="text-center mb-[18px]">
       <h2 class="m-0 text-black font-semibold text-[1.5rem]">A coleta começa em:</h2>
@@ -32,33 +32,26 @@
       <a href="#" class="text-[#7083D9] no-underline font-semibold text-[1.2rem] hover:underline">Crie um alerta para lembrar</a>
     </div>
 
-    <!-- Contribuições e últimas coletas -->
-    <div class="flex gap-[12px] items-stretch justify-between mb-[20px] w-full max-[420px]:flex-col">
+  <!-- Últimas coletas -->
+  <div class="w-full mb-[25px] flex justify-center">
+    <div class="bg-[#ffb84d] text-[#4e4e4e] text-[1rem] rounded-[10px] p-[14px]
+      shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] text-center
+      w-[250px] mx-auto w-full">
 
-      <!-- Contribuições -->
-      <div class="bg-[#cbe74e] text-center font-semibold text-black rounded-[10px] p-[14px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] flex-1">
-        <p class="text-[0.9rem] mt-5 text-[#4e4e4e] font-bold">Você contribuiu com</p>
-        <h1 class="text-[6rem] m-[8px_0]">15</h1>
-        <p class="text-[0.9rem] text-[#4e4e4e] font-bold">Coletas</p>
-      </div>
+      <h3 class="text-black m-0 mb-[8px] text-[1.1rem]">Últimas coletas</h3>
 
-      <!-- Últimas coletas -->
-      <div class="bg-[#ffb84d] text-[#4e4e4e] text-[0.92rem] rounded-[10px] p-[14px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] flex-1 text-center">
-        <h3 class=" text-black m-0 mb-[8px] text-[0.9rem]">Últimas coletas</h3>
-        <ul class="list-none m-0 px-[6px] text-[#4e4e4e">
-          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">21/09/2025</li>
-          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">13/09/2025</li>
-          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">06/09/2025</li>
-          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">01/08/2025</li>
-          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">XX/XX/2025</li>
-          <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">XX/XX/2025</li>
-          <li class="py-[4px] font-medium">XX/XX/2025</li>
-        </ul>
-      </div>
+      <ul class="list-none m-0 px-[6px] text-[#4e4e4e]">
+        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">21/09/2025</li>
+        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">13/09/2025</li>
+        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">06/09/2025</li>
+        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">01/08/2025</li> 
+      </ul>
     </div>
+  </div>
+
 
       <!-- Rodapé -->
-    <footer class="text-center text-[0.9rem] mt-auto font-semibold text-[#4e4e4e]">
+    <footer class="text-center text-[0.9rem] font-semibold text-[#4e4e4e]">
       Precisa de ajuda? <a href="#" class="text-[#7083D9] no-underline hover:underline">Clique aqui</a>
     </footer>
   </aside>
@@ -67,6 +60,7 @@
   <main class="w-full h-full z-[1]">
     <div id="map" class="w-full h-screen"></div>
   </main>
+
 </div>
 
 <!-- Leaflet CSS e JS -->
