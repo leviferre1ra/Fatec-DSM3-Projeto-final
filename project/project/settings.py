@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'user_data_api',
     'city_data_api',
+    'calendar_api',
 ]
 
 MIDDLEWARE = [
@@ -153,15 +154,24 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 LOGIN_REDIRECT_URL = "home" 
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'name':'Google',
-            'client_id': os.environ.get('SOCIAL_APP_CLIENT_ID'),
-            'secret': os.environ.get('SOCIAL_APP_SECRET_KEY'),
-            'key': ''
-        }
+    "google": {
+        "APP": {
+            "client_id": os.environ.get("SOCIAL_APP_CLIENT_ID"),
+            "secret": os.environ.get("SOCIAL_APP_SECRET_KEY"),
+            "key": ""
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+            "https://www.googleapis.com/auth/calendar",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+            "prompt": "consent",
+        },
     }
 }
+
 
 ACCOUNT_FORMS = {
     'signup': 'project.forms.CustomSignupForm',

@@ -25,6 +25,9 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('users/', include('user_data_api.urls')),
     path("coleta/", include("city_data_api.urls")),
+
+    path('calendar/', include('calendar_api.urls')),
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
