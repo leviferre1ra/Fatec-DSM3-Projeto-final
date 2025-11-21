@@ -9,9 +9,7 @@
 
     <!-- Perfil -->
     <div class="flex items-center gap-[10px] ">
-      <img src="https://via.placeholder.com/45" alt="Foto do usuário"
-           class="w-[65px] h-[65px] rounded-full object-cover border-[2.3px] border-black">
-      <span class="font-medium text-black text-[1.2rem]">{{ user.first_name|default:user.username }}</span>
+      <span class="font-medium text-black text-[1.5rem] ml-3">Olá, <strong>{{ user.first_name|default:user.username }}</strong></span>
     </div>
 
     <!-- Modal de seleção de bairro -->

@@ -288,8 +288,14 @@
   .mb-\[25px\] {
     margin-bottom: 25px;
   }
+  .ml-3 {
+    margin-left: calc(var(--spacing) * 3);
+  }
   .ml-4 {
     margin-left: calc(var(--spacing) * 4);
+  }
+  .ml-5 {
+    margin-left: calc(var(--spacing) * 5);
   }
   .box-border {
     box-sizing: border-box;
@@ -437,32 +443,17 @@
   .justify-center {
     justify-content: center;
   }
-  .justify-evenly {
-    justify-content: space-evenly;
-  }
-  .justify-start {
-    justify-content: flex-start;
-  }
-  .gap-1 {
-    gap: calc(var(--spacing) * 1);
-  }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
   .gap-3 {
     gap: calc(var(--spacing) * 3);
   }
-  .gap-4 {
-    gap: calc(var(--spacing) * 4);
-  }
   .gap-5 {
     gap: calc(var(--spacing) * 5);
   }
   .gap-6 {
     gap: calc(var(--spacing) * 6);
-  }
-  .gap-10 {
-    gap: calc(var(--spacing) * 10);
   }
   .gap-\[10px\] {
     gap: 10px;
@@ -569,9 +560,6 @@
   .px-6 {
     padding-inline: calc(var(--spacing) * 6);
   }
-  .px-\[4px\] {
-    padding-inline: 4px;
-  }
   .px-\[6px\] {
     padding-inline: 6px;
   }
@@ -583,9 +571,6 @@
   }
   .py-\[4px\] {
     padding-block: 4px;
-  }
-  .py-\[40px\] {
-    padding-block: 40px;
   }
   .pb-3 {
     padding-bottom: calc(var(--spacing) * 3);
@@ -634,8 +619,14 @@
   .text-\[1\.3rem\] {
     font-size: 1.3rem;
   }
+  .text-\[1\.4rem\] {
+    font-size: 1.4rem;
+  }
   .text-\[1\.5rem\] {
     font-size: 1.5rem;
+  }
+  .text-\[1\.75rem\] {
+    font-size: 1.75rem;
   }
   .text-\[1rem\] {
     font-size: 1rem;
