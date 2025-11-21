@@ -8,15 +8,15 @@
   <aside class="bg-white flex flex-col p-[30px] overflow-y-scroll max-h-screen py-9 scrollbar shadow-[10px_0px_6px_rgba(0,0,0,0.15)] z-[2]">
 
     <!-- Perfil -->
-    <div class="flex items-center gap-[10px] mb-[35px]">
+    <div class="flex items-center gap-[10px] ">
       <img src="https://via.placeholder.com/45" alt="Foto do usuário"
            class="w-[65px] h-[65px] rounded-full object-cover border-[2.3px] border-black">
       <span class="font-medium text-black text-[1.2rem]">{{ user.first_name|default:user.username }}</span>
     </div>
 
     <!-- Modal de seleção de bairro -->
-    <div class="bg-white p-8 rounded-lg max-w-md text-center">
-        <select id="dropdown-bairros" class="w-full p-3 mb-6 border border-gray-300 rounded-lg text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
+    <div class="bg-white mt-10 rounded-lg max-w-md text-center">
+        <select id="dropdown-bairros" class="w-full p-3 mb-10 border border-gray-300 rounded-lg text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
             <option value="" disabled selected>Escolha um bairro...</option>
             <option value="todos">Todos</option>
             <option value="Anhanguera">Anhanguera</option>
@@ -53,13 +53,13 @@
     <!-- Contagem regressiva -->
     <div class="text-center mb-[18px]">
       <h2 class="m-0 text-black font-semibold text-[1.5rem]">A coleta começa em:</h2>
-      <h1 class="text-[6.5rem] text-[#7083D9] font-bold m-0">00:47</h1>
+      <h1 id="countdown" class="text-[4rem] text-[#7083D9] font-bold m-0">00:00:00</h1>
     </div>
 
     <!-- Próxima coleta -->
     <div class="bg-[#7083D9] text-white rounded-[10px] p-4 text-center mb-[23px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3]">
-      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Próxima Coleta:</strong> 28/09/2025</p>
-      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Horário Previsto:</strong> 14:00</p>
+      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Próxima Coleta:</strong> <span id="proxima-coleta-date">--/--/----</span></p>
+      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Horário Previsto:</strong> <span id="horario-previsto">--:--</span></p>
     </div>
 
     <!-- Alerta -->
@@ -76,18 +76,15 @@
 
       <h3 class="text-black m-0 mb-[8px] text-[1.1rem]">Últimas coletas</h3>
 
-      <ul class="list-none m-0 px-[6px] text-[#4e4e4e]">
-        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">21/09/2025</li>
-        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">13/09/2025</li>
-        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">06/09/2025</li>
-        <li class="py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]">01/08/2025</li> 
+      <ul id="ultimas-coletas-list" class="list-none m-0 px-[6px] text-[#4e4e4e]">
+        <!-- preenchido dinamicamente -->
       </ul>
     </div>
   </div>
 
 
       <!-- Rodapé -->
-    <footer class="text-center text-[0.9rem] font-semibold text-[#4e4e4e]">
+    <footer class="text-center text-[0.9rem] font-semibold text-[#4e4e4e] mt-6">
       Precisa de ajuda? <a href="#" class="text-[#7083D9] no-underline hover:underline">Clique aqui</a>
     </footer>
   </aside>
@@ -108,8 +105,98 @@
   let geoJsonLayer;
   let bairroSelecionado = localStorage.getItem('bairroSelecionado') || '';
   let initialGeojson = null;
+  let currentNextDate = null;
+  let countdownInterval = null;
   // Dia atual (passado do backend)
   const diaAtual = "{{ dia_atual|escapejs }}";
+
+  // Mapeamento português -> número do getDay() (0 = domingo)
+  const diaParaNumero = {
+    'domingo': 0,
+    'segunda': 1,
+    'terca': 2, 'terça': 2,
+    'quarta': 3,
+    'quinta': 4,
+    'sexta': 5,
+    'sabado': 6, 'sábado': 6
+  };
+
+  function parseHorario(horarioStr) {
+    if (!horarioStr) return { h: 0, m: 0 };
+    const parts = horarioStr.trim().split(':');
+    const h = parseInt(parts[0], 10) || 0;
+    const m = parseInt(parts[1], 10) || 0;
+    return { h, m };
+  }
+
+  function getNextDateForFeature(feature) {
+    const props = feature.properties || {};
+    const dias = Array.isArray(props.Dias) ? props.Dias.map(d => d.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')) : [];
+    const horario = props['Horário'] || props['Horario'] || props.horario || '';
+    const { h, m } = parseHorario(horario);
+
+    const now = new Date();
+    for (let offset = 0; offset < 14; offset++) { // checar próximas duas semanas para segurança
+      const candidate = new Date(now);
+      candidate.setDate(now.getDate() + offset);
+      candidate.setHours(h, m, 0, 0);
+      const candidateDayNum = candidate.getDay(); // 0..6
+      // verificar se candidateDayNum está em dias
+      const matches = dias.some(d => diaParaNumero[d] === candidateDayNum);
+      if (matches) {
+        // Se for hoje (offset==0), garantir que o horário ainda não passou
+        if (offset === 0 && candidate <= now) {
+          continue;
+        }
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  function formatDateBR(date) {
+    if (!date) return '--/--/----';
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  function formatTime(date) {
+    if (!date) return '--:--';
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  function startCountdown(toDate) {
+    currentNextDate = toDate;
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (!toDate) {
+      document.getElementById('countdown').textContent = '—';
+      return;
+    }
+    function update() {
+      const now = new Date();
+      let diff = Math.max(0, Math.floor((toDate - now) / 1000)); // segundos
+      const days = Math.floor(diff / 86400);
+      diff %= 86400;
+      const hours = Math.floor(diff / 3600);
+      diff %= 3600;
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+      let text = '';
+      if (days > 0) text += days + 'd ';
+      text += String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+      document.getElementById('countdown').textContent = text;
+      if (toDate - now <= 0) {
+        clearInterval(countdownInterval);
+        // opcional: recarregar dados do bairro para próxima ocorrência
+      }
+    }
+    update();
+    countdownInterval = setInterval(update, 1000);
+  }
 
   // Inicializar mapa
   function inicializarMapa() {
@@ -124,7 +211,8 @@
       style: function(feature) {
         const props = feature.properties || {};
         const dias = Array.isArray(props.Dias) ? props.Dias : [];
-        const isActive = dias.includes(diaAtual);
+        const normalized = dias.map(d => d.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+        const isActive = normalized.includes(diaAtual.toString().toLowerCase());
         return {
           color: isActive ? '#7083D9' : '#A6A6A6',
           weight: 2,
@@ -150,17 +238,16 @@
     }).addTo(map);
   }
 
-  // Calcular centro e bounds das features
+  // Centralizar no bounds das features
   function centralizarNoMapa(geojsonData) {
     if (!geojsonData || !geojsonData.features || geojsonData.features.length === 0) {
       return;
     }
-
     const bounds = L.geoJSON(geojsonData).getBounds();
     map.fitBounds(bounds, { padding: [50, 50] });
   }
 
-  // Carregar dados do GeoJSON inicial
+  // Carregar GeoJSON na camada e centralizar
   function carregarGeojson(geojsonData) {
     if (geoJsonLayer) {
       geoJsonLayer.clearLayers();
@@ -169,19 +256,139 @@
     centralizarNoMapa(geojsonData);
   }
 
+  // ----------------- Últimas coletas (últimas 4 ocorrências) -----------------
+  function normalizeDia(d) {
+    return (d || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // calcula as últimas `count` datas em que a coleta ocorreu para um array de features
+  function calcularUltimasColetas(features, count = 4) {
+    const now = new Date();
+    const ocorrencias = [];
+
+    if (!features || features.length === 0) return [];
+
+    // para cada feature, para cada dia em que passa, calcular a última ocorrência (e algumas anteriores)
+    features.forEach(f => {
+      const p = f.properties || {};
+      const dias = Array.isArray(p.Dias) ? p.Dias.map(normalizeDia) : [];
+      if (dias.length === 0) return;
+      const horario = p['Horário'] || p['Horario'] || p.horario || '00:00';
+      const parts = horario.split(':');
+      const h = parseInt(parts[0], 10) || 0;
+      const m = parseInt(parts[1], 10) || 0;
+
+      dias.forEach(diaStr => {
+        const norm = normalizeDia(diaStr);
+        const target = diaParaNumero[norm];
+        if (target === undefined) return;
+
+        // construir datetime de hoje com a hora da coleta
+        const cand = new Date(now);
+        cand.setHours(h, m, 0, 0);
+        const todayWD = cand.getDay();
+
+        // delta dias entre hoje e o weekday alvo (0..6)
+        let delta = (todayWD - target + 7) % 7;
+        // se hoje é o dia alvo, mas horário ainda não passou -> última ocorrência foi 7 dias atrás
+        if (delta === 0 && cand > now) delta = 7;
+
+        const last = new Date(cand);
+        last.setDate(cand.getDate() - delta);
+
+        // adicionar last e mais 3 ocorrências anteriores (subtraindo semanas)
+        for (let i = 0; i < 4; i++) {
+          const dt = new Date(last);
+          dt.setDate(last.getDate() - 7 * i);
+          if (dt <= now) {
+            ocorrencias.push({ date: dt, horario: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` });
+          }
+        }
+      });
+    });
+
+    // ordenar desc e pegar os 4 mais recentes, removendo duplicatas
+    ocorrencias.sort((a, b) => b.date - a.date);
+    const unique = [];
+    const seen = new Set();
+    for (const o of ocorrencias) {
+      const key = o.date.toISOString();
+      if (!seen.has(key)) {
+        unique.push(o);
+        seen.add(key);
+      }
+      if (unique.length >= count) break;
+    }
+    return unique;
+  }
+
+  function atualizarUltimasColetasUI(features) {
+    const ul = document.getElementById('ultimas-coletas-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    const ultimas = calcularUltimasColetas(features, 4);
+    if (!ultimas.length) {
+      const li = document.createElement('li');
+      li.className = 'py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]';
+      li.textContent = 'Nenhuma coleta registrada ainda';
+      ul.appendChild(li);
+      return;
+    }
+    ultimas.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)] flex items-center justify-center gap-3';
+      li.innerHTML = `<span>${formatDateBR(item.date)}</span><span class="text-sm text-[#4e4e4e]">${item.horario}</span>`;
+      ul.appendChild(li);
+    });
+  }
+  // ----------------- fim Últimas coletas -----------------
+
+  // calcula próxima coleta entre features e atualiza UI
+  function atualizarInfoDasFeatures(geojsonData) {
+    if (!geojsonData || !geojsonData.features || geojsonData.features.length === 0) {
+      document.getElementById('proxima-coleta-date').textContent = '--/--/----';
+      document.getElementById('horario-previsto').textContent = '--:--';
+      startCountdown(null);
+      atualizarUltimasColetasUI([]);
+      return;
+    }
+    // para cada feature calcula a próxima data; escolhe a mais próxima (menor)
+    let next = null;
+    let nextFeature = null;
+    geojsonData.features.forEach(f => {
+      const d = getNextDateForFeature(f);
+      if (d && (!next || d < next)) {
+        next = d;
+        nextFeature = f;
+      }
+    });
+
+    // atualizar lista de últimas coletas imediatamente
+    atualizarUltimasColetasUI(geojsonData.features);
+
+    if (next) {
+      document.getElementById('proxima-coleta-date').textContent = formatDateBR(next);
+      document.getElementById('horario-previsto').textContent = formatTime(next);
+      startCountdown(next);
+    } else {
+      document.getElementById('proxima-coleta-date').textContent = 'Sem previsão';
+      document.getElementById('horario-previsto').textContent = '--:--';
+      startCountdown(null);
+    }
+  }
+
   // Listener para mudança no dropdown
   document.getElementById('dropdown-bairros').addEventListener('change', function() {
     const bairro = this.value;
 
-    if (!bairro) {
-      return;
-    }
+    if (!bairro) return;
 
     // Caso especial: mostrar todos os bairros (restaurar visão completa)
     if (bairro === 'todos') {
       localStorage.removeItem('bairroSelecionado');
       if (initialGeojson) {
         carregarGeojson(initialGeojson);
+        atualizarInfoDasFeatures(initialGeojson);
         console.log('Mostrando todos os bairros');
       }
       return;
@@ -190,12 +397,16 @@
     // Salvar bairro selecionado no localStorage
     localStorage.setItem('bairroSelecionado', bairro);
 
-    // Fazer requisição AJAX
+    // Fazer requisição AJAX ao endpoint que já implementaste
     fetch(`/api/carregar-bairro/?bairro=${encodeURIComponent(bairro)}`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          // data.geojson já é um FeatureCollection
           carregarGeojson(data.geojson);
+          atualizarInfoDasFeatures(data.geojson);
+          // garantir que a lista de últimas coletas também foi atualizada
+          atualizarUltimasColetasUI(data.geojson.features || []);
           console.log('Bairro carregado:', bairro);
         } else {
           console.error('Erro ao carregar bairro:', data.error);
@@ -207,17 +418,32 @@
   // Inicializar na primeira carga
   document.addEventListener('DOMContentLoaded', function() {
     inicializarMapa();
-    
-    // Dados GeoJSON passados do backend
-    initialGeojson = {{ geojson|safe }};
-    carregarGeojson(initialGeojson);
+
+    initialGeojson = {{ geojson|default:"null"|safe }};
+    if (initialGeojson) {
+      carregarGeojson(initialGeojson);
+      atualizarInfoDasFeatures(initialGeojson);
+    } else {
+      atualizarUltimasColetasUI([]);
+    }
 
     // Restaurar bairro selecionado do localStorage
     const dropdown = document.getElementById('dropdown-bairros');
     if (bairroSelecionado) {
       dropdown.value = bairroSelecionado;
+      if (bairroSelecionado !== 'todos') {
+        // requisitar os dados filtrados sem recarregar a página
+        fetch(`/api/carregar-bairro/?bairro=${encodeURIComponent(bairroSelecionado)}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              carregarGeojson(data.geojson);
+              atualizarInfoDasFeatures(data.geojson);
+            }
+          })
+          .catch(err => console.error(err));
+      }
     } else {
-      // por padrão, mostrar todos
       dropdown.value = 'todos';
     }
   });
