@@ -1,0 +1,450 @@
+{% extends "allauth/layouts/base.html" %}
+
+{% block content %}
+
+<div class="m-0 font-[Inter] font-bold grid grid-cols-[450px_1fr] bg-white box-border">
+
+  <!-- Painel lateral esquerdo -->
+  <aside class="bg-white flex flex-col p-[30px] overflow-y-scroll max-h-screen py-9 scrollbar shadow-[10px_0px_6px_rgba(0,0,0,0.15)] z-[2]">
+
+    <!-- Perfil -->
+    <div class="flex items-center gap-[10px] ">
+      <span class="font-medium text-black text-[1.5rem] ml-3">Olá, <strong>{{ user.first_name|default:user.username }}</strong></span>
+    </div>
+
+    <!-- Modal de seleção de bairro -->
+    <div class="bg-white mt-10 rounded-lg max-w-md text-center">
+        <select id="dropdown-bairros" class="w-full p-3 mb-10 border border-gray-300 rounded-lg text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
+            <option value="" disabled selected>Escolha um bairro...</option>
+            <option value="todos">Todos</option>
+            <option value="Anhanguera">Anhanguera</option>
+            <option value="Antartica">Antártica</option>
+            <option value="Aviacao">Aviação</option>
+            <option value="Boqueirao">Boqueirão</option>
+            <option value="Caicara">Caiçara</option>
+            <option value="Canto do Forte">Canto do Forte</option>
+            <option value="Cidade da Crianca">Cidade da Criança</option>
+            <option value="Esmeralda">Esmeralda</option>
+            <option value="Florida">Flórida</option>
+            <option value="Gloria">Glória</option>
+            <option value="Guilhermina">Guilhermina</option>
+            <option value="Maracana">Maracanã</option>
+            <option value="Melvi">Melvi</option>
+            <option value="Mirim">Mirim</option>
+            <option value="Nova Mirim">Nova Mirim</option>
+            <option value="Ocian">Ocian</option>
+            <option value="Princesa">Princesa</option>
+            <option value="Quietude">Quietude</option>
+            <option value="real">Real</option>
+            <option value="Ribeiropolis">Ribeirópolis</option>
+            <option value="Samambaia">Samambaia</option>
+            <option value="Santa Marina">Santa Marina</option>
+            <option value="Sitio do Campo">Sítio do Campo</option>
+            <option value="Solemar">Solemar</option>
+            <option value="Tupi">Tupi</option>
+            <option value="Tupiry">Tupiry</option>
+            <option value="vila sonia">Vila Sônia</option>
+        </select>
+    </div>
+
+
+    <!-- Contagem regressiva -->
+    <div class="text-center mb-[18px]">
+      <h2 class="m-0 text-black font-semibold text-[1.5rem]">A coleta começa em:</h2>
+      <h1 id="countdown" class="text-[4rem] text-[#7083D9] font-bold m-0">00:00:00</h1>
+    </div>
+
+    <!-- Próxima coleta -->
+    <div class="bg-[#7083D9] text-white rounded-[10px] p-4 text-center mb-[23px] shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3]">
+      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Próxima Coleta:</strong> <span id="proxima-coleta-date">--/--/----</span></p>
+      <p class="m-[5px_3px] text-[1.3rem] font-normal"><strong>Horário Previsto:</strong> <span id="horario-previsto">--:--</span></p>
+    </div>
+
+    <!-- Alerta -->
+    <div class="text-center mb-[25px]">
+      <h2 class="m-0 text-black font-semibold text-[1.5rem]">Perdeu o horário da coleta?</h2>
+      <a href="#" class="text-[#7083D9] no-underline font-semibold text-[1.2rem] hover:underline">Crie um alerta para lembrar</a>
+    </div>
+
+  <!-- Últimas coletas -->
+  <div class="w-full mb-[25px] flex justify-center">
+    <div class="bg-[#ffb84d] text-[#4e4e4e] text-[1rem] rounded-[10px] p-[14px]
+      shadow-[10px_10px_5px_rgba(0,0,0,0.15)] z-[3] text-center
+      mx-auto w-full">
+
+      <h3 class="text-black m-0 mb-[8px] text-[1.1rem]">Últimas coletas</h3>
+
+      <ul id="ultimas-coletas-list" class="list-none m-0 px-[6px] text-[#4e4e4e]">
+        <!-- preenchido dinamicamente -->
+      </ul>
+    </div>
+  </div>
+
+
+      <!-- Rodapé -->
+    <footer class="text-center text-[0.9rem] font-semibold text-[#4e4e4e] mt-6">
+      Precisa de ajuda? <a href="#" class="text-[#7083D9] no-underline hover:underline">Clique aqui</a>
+    </footer>
+  </aside>
+
+  <!-- Mapa -->
+  <main class="w-full h-full z-[1]">
+    <div id="map" class="w-full h-screen"></div>
+  </main>
+
+</div>
+
+<!-- Leaflet CSS e JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  let map;
+  let geoJsonLayer;
+  let bairroSelecionado = localStorage.getItem('bairroSelecionado') || '';
+  let initialGeojson = null;
+  let currentNextDate = null;
+  let countdownInterval = null;
+  // Dia atual (passado do backend)
+  const diaAtual = "{{ dia_atual|escapejs }}";
+
+  // Mapeamento português -> número do getDay() (0 = domingo)
+  const diaParaNumero = {
+    'domingo': 0,
+    'segunda': 1,
+    'terca': 2, 'terça': 2,
+    'quarta': 3,
+    'quinta': 4,
+    'sexta': 5,
+    'sabado': 6, 'sábado': 6
+  };
+
+  function parseHorario(horarioStr) {
+    if (!horarioStr) return { h: 0, m: 0 };
+    const parts = horarioStr.trim().split(':');
+    const h = parseInt(parts[0], 10) || 0;
+    const m = parseInt(parts[1], 10) || 0;
+    return { h, m };
+  }
+
+  function getNextDateForFeature(feature) {
+    const props = feature.properties || {};
+    const dias = Array.isArray(props.Dias) ? props.Dias.map(d => d.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')) : [];
+    const horario = props['Horário'] || props['Horario'] || props.horario || '';
+    const { h, m } = parseHorario(horario);
+
+    const now = new Date();
+    for (let offset = 0; offset < 14; offset++) { // checar próximas duas semanas para segurança
+      const candidate = new Date(now);
+      candidate.setDate(now.getDate() + offset);
+      candidate.setHours(h, m, 0, 0);
+      const candidateDayNum = candidate.getDay(); // 0..6
+      // verificar se candidateDayNum está em dias
+      const matches = dias.some(d => diaParaNumero[d] === candidateDayNum);
+      if (matches) {
+        // Se for hoje (offset==0), garantir que o horário ainda não passou
+        if (offset === 0 && candidate <= now) {
+          continue;
+        }
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  function formatDateBR(date) {
+    if (!date) return '--/--/----';
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  function formatTime(date) {
+    if (!date) return '--:--';
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  function startCountdown(toDate) {
+    currentNextDate = toDate;
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (!toDate) {
+      document.getElementById('countdown').textContent = '—';
+      return;
+    }
+    function update() {
+      const now = new Date();
+      let diff = Math.max(0, Math.floor((toDate - now) / 1000)); // segundos
+      const days = Math.floor(diff / 86400);
+      diff %= 86400;
+      const hours = Math.floor(diff / 3600);
+      diff %= 3600;
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+      let text = '';
+      if (days > 0) text += days + 'd ';
+      text += String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+      document.getElementById('countdown').textContent = text;
+      if (toDate - now <= 0) {
+        clearInterval(countdownInterval);
+        // opcional: recarregar dados do bairro para próxima ocorrência
+      }
+    }
+    update();
+    countdownInterval = setInterval(update, 1000);
+  }
+
+  // Inicializar mapa
+  function inicializarMapa() {
+    map = L.map('map').setView([-24.0053, -46.4124], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    geoJsonLayer = L.geoJSON(null, {
+      style: function(feature) {
+        const props = feature.properties || {};
+        const dias = Array.isArray(props.Dias) ? props.Dias : [];
+        const normalized = dias.map(d => d.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+        const isActive = normalized.includes(diaAtual.toString().toLowerCase());
+        return {
+          color: isActive ? '#7083D9' : '#A6A6A6',
+          weight: 2,
+          opacity: 0.8,
+          fillOpacity: 0.3,
+          fillColor: isActive ? '#7083D9' : '#A6A6A6'
+        };
+      },
+      onEachFeature: function(feature, layer) {
+        const props = feature.properties || {};
+        const diasArray = Array.isArray(props.Dias) ? props.Dias : [];
+        const dias = diasArray.join(', ');
+        const popupContent = `
+          <div class="popup-content">
+            <b>${props.Bairro}</b><br>
+            <strong>Dias:</strong> ${dias}<br>
+            <strong>Período:</strong> ${props.Período}<br>
+            <strong>Horário:</strong> ${props.Horário}
+          </div>
+        `;
+        layer.bindPopup(popupContent);
+      }
+    }).addTo(map);
+  }
+
+  // Centralizar no bounds das features
+  function centralizarNoMapa(geojsonData) {
+    if (!geojsonData || !geojsonData.features || geojsonData.features.length === 0) {
+      return;
+    }
+    const bounds = L.geoJSON(geojsonData).getBounds();
+    map.fitBounds(bounds, { padding: [50, 50] });
+  }
+
+  // Carregar GeoJSON na camada e centralizar
+  function carregarGeojson(geojsonData) {
+    if (geoJsonLayer) {
+      geoJsonLayer.clearLayers();
+      geoJsonLayer.addData(geojsonData);
+    }
+    centralizarNoMapa(geojsonData);
+  }
+
+  // ----------------- Últimas coletas (últimas 4 ocorrências) -----------------
+  function normalizeDia(d) {
+    return (d || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // calcula as últimas `count` datas em que a coleta ocorreu para um array de features
+  function calcularUltimasColetas(features, count = 4) {
+    const now = new Date();
+    const ocorrencias = [];
+
+    if (!features || features.length === 0) return [];
+
+    // para cada feature, para cada dia em que passa, calcular a última ocorrência (e algumas anteriores)
+    features.forEach(f => {
+      const p = f.properties || {};
+      const dias = Array.isArray(p.Dias) ? p.Dias.map(normalizeDia) : [];
+      if (dias.length === 0) return;
+      const horario = p['Horário'] || p['Horario'] || p.horario || '00:00';
+      const parts = horario.split(':');
+      const h = parseInt(parts[0], 10) || 0;
+      const m = parseInt(parts[1], 10) || 0;
+
+      dias.forEach(diaStr => {
+        const norm = normalizeDia(diaStr);
+        const target = diaParaNumero[norm];
+        if (target === undefined) return;
+
+        // construir datetime de hoje com a hora da coleta
+        const cand = new Date(now);
+        cand.setHours(h, m, 0, 0);
+        const todayWD = cand.getDay();
+
+        // delta dias entre hoje e o weekday alvo (0..6)
+        let delta = (todayWD - target + 7) % 7;
+        // se hoje é o dia alvo, mas horário ainda não passou -> última ocorrência foi 7 dias atrás
+        if (delta === 0 && cand > now) delta = 7;
+
+        const last = new Date(cand);
+        last.setDate(cand.getDate() - delta);
+
+        // adicionar last e mais 3 ocorrências anteriores (subtraindo semanas)
+        for (let i = 0; i < 4; i++) {
+          const dt = new Date(last);
+          dt.setDate(last.getDate() - 7 * i);
+          if (dt <= now) {
+            ocorrencias.push({ date: dt, horario: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` });
+          }
+        }
+      });
+    });
+
+    // ordenar desc e pegar os 4 mais recentes, removendo duplicatas
+    ocorrencias.sort((a, b) => b.date - a.date);
+    const unique = [];
+    const seen = new Set();
+    for (const o of ocorrencias) {
+      const key = o.date.toISOString();
+      if (!seen.has(key)) {
+        unique.push(o);
+        seen.add(key);
+      }
+      if (unique.length >= count) break;
+    }
+    return unique;
+  }
+
+  function atualizarUltimasColetasUI(features) {
+    const ul = document.getElementById('ultimas-coletas-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    const ultimas = calcularUltimasColetas(features, 4);
+    if (!ultimas.length) {
+      const li = document.createElement('li');
+      li.className = 'py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)]';
+      li.textContent = 'Nenhuma coleta registrada ainda';
+      ul.appendChild(li);
+      return;
+    }
+    ultimas.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'py-[4px] font-medium border-b border-dashed border-[rgba(0,0,0,0.06)] flex items-center justify-center gap-3';
+      li.innerHTML = `<span>${formatDateBR(item.date)}</span><span class="text-sm text-[#4e4e4e]">${item.horario}</span>`;
+      ul.appendChild(li);
+    });
+  }
+  // ----------------- fim Últimas coletas -----------------
+
+  // calcula próxima coleta entre features e atualiza UI
+  function atualizarInfoDasFeatures(geojsonData) {
+    if (!geojsonData || !geojsonData.features || geojsonData.features.length === 0) {
+      document.getElementById('proxima-coleta-date').textContent = '--/--/----';
+      document.getElementById('horario-previsto').textContent = '--:--';
+      startCountdown(null);
+      atualizarUltimasColetasUI([]);
+      return;
+    }
+    // para cada feature calcula a próxima data; escolhe a mais próxima (menor)
+    let next = null;
+    let nextFeature = null;
+    geojsonData.features.forEach(f => {
+      const d = getNextDateForFeature(f);
+      if (d && (!next || d < next)) {
+        next = d;
+        nextFeature = f;
+      }
+    });
+
+    // atualizar lista de últimas coletas imediatamente
+    atualizarUltimasColetasUI(geojsonData.features);
+
+    if (next) {
+      document.getElementById('proxima-coleta-date').textContent = formatDateBR(next);
+      document.getElementById('horario-previsto').textContent = formatTime(next);
+      startCountdown(next);
+    } else {
+      document.getElementById('proxima-coleta-date').textContent = 'Sem previsão';
+      document.getElementById('horario-previsto').textContent = '--:--';
+      startCountdown(null);
+    }
+  }
+
+  // Listener para mudança no dropdown
+  document.getElementById('dropdown-bairros').addEventListener('change', function() {
+    const bairro = this.value;
+
+    if (!bairro) return;
+
+    // Caso especial: mostrar todos os bairros (restaurar visão completa)
+    if (bairro === 'todos') {
+      localStorage.removeItem('bairroSelecionado');
+      if (initialGeojson) {
+        carregarGeojson(initialGeojson);
+        atualizarInfoDasFeatures(initialGeojson);
+        console.log('Mostrando todos os bairros');
+      }
+      return;
+    }
+
+    // Salvar bairro selecionado no localStorage
+    localStorage.setItem('bairroSelecionado', bairro);
+
+    // Fazer requisição AJAX ao endpoint que já implementaste
+    fetch(`/api/carregar-bairro/?bairro=${encodeURIComponent(bairro)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // data.geojson já é um FeatureCollection
+          carregarGeojson(data.geojson);
+          atualizarInfoDasFeatures(data.geojson);
+          // garantir que a lista de últimas coletas também foi atualizada
+          atualizarUltimasColetasUI(data.geojson.features || []);
+          console.log('Bairro carregado:', bairro);
+        } else {
+          console.error('Erro ao carregar bairro:', data.error);
+        }
+      })
+      .catch(error => console.error('Erro:', error));
+  });
+
+  // Inicializar na primeira carga
+  document.addEventListener('DOMContentLoaded', function() {
+    inicializarMapa();
+
+    initialGeojson = {{ geojson|default:"null"|safe }};
+    if (initialGeojson) {
+      carregarGeojson(initialGeojson);
+      atualizarInfoDasFeatures(initialGeojson);
+    } else {
+      atualizarUltimasColetasUI([]);
+    }
+
+    // Restaurar bairro selecionado do localStorage
+    const dropdown = document.getElementById('dropdown-bairros');
+    if (bairroSelecionado) {
+      dropdown.value = bairroSelecionado;
+      if (bairroSelecionado !== 'todos') {
+        // requisitar os dados filtrados sem recarregar a página
+        fetch(`/api/carregar-bairro/?bairro=${encodeURIComponent(bairroSelecionado)}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              carregarGeojson(data.geojson);
+              atualizarInfoDasFeatures(data.geojson);
+            }
+          })
+          .catch(err => console.error(err));
+      }
+    } else {
+      dropdown.value = 'todos';
+    }
+  });
+</script>
+
+{% endblock content %}

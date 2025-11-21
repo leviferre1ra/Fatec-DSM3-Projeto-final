@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'main_page',
     'rest_framework',
     'rest_framework.authtoken',
     'user_data_api',
@@ -146,8 +147,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
-# descomentar quando pagina home estiver disponivel
-# LOGIN_REDIRECT_URL = "home" 
+LOGIN_REDIRECT_URL = "home" 
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -158,6 +158,10 @@ SOCIALACCOUNT_PROVIDERS = {
             'key': ''
         }
     }
+}
+
+ACCOUNT_FORMS = {
+    'signup': 'project.forms.CustomSignupForm',
 }
 
 # Internationalization
