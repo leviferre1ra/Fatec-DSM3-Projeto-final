@@ -22,7 +22,7 @@ form #id_password {
 }
 
 form button{
-    @apply w-full py-4 bg-[#7083D9] rounded-xl text-white font-medium text-xl cursor-pointer 
+    @apply w-full py-4 bg-[#7083D9] hover:bg-[#5463a5] rounded-xl text-white font-medium text-xl cursor-pointer 
 }
 
 form #btn-signup{
