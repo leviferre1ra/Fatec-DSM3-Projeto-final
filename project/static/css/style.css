@@ -210,9 +210,6 @@
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
-  .top-1 {
-    top: calc(var(--spacing) * 1);
-  }
   .top-1\/2 {
     top: calc(1/2 * 100%);
   }
@@ -294,9 +291,6 @@
   .ml-4 {
     margin-left: calc(var(--spacing) * 4);
   }
-  .ml-5 {
-    margin-left: calc(var(--spacing) * 5);
-  }
   .box-border {
     box-sizing: border-box;
   }
@@ -312,12 +306,6 @@
   .hidden {
     display: none;
   }
-  .table {
-    display: table;
-  }
-  .h-0 {
-    height: calc(var(--spacing) * 0);
-  }
   .h-0\.5 {
     height: calc(var(--spacing) * 0.5);
   }
@@ -329,9 +317,6 @@
   }
   .h-9 {
     height: calc(var(--spacing) * 9);
-  }
-  .h-\[65px\] {
-    height: 65px;
   }
   .h-full {
     height: 100%;
@@ -369,9 +354,6 @@
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
-  .w-\[65px\] {
-    width: 65px;
-  }
   .w-full {
     width: 100%;
   }
@@ -381,15 +363,8 @@
   .max-w-md {
     max-width: var(--container-md);
   }
-  .border-collapse {
-    border-collapse: collapse;
-  }
   .translate-x-full {
     --tw-translate-x: 100%;
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .-translate-y-1 {
-    --tw-translate-y: calc(var(--spacing) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .-translate-y-1\/2 {
@@ -418,9 +393,6 @@
   }
   .cursor-pointer {
     cursor: pointer;
-  }
-  .resize {
-    resize: both;
   }
   .list-none {
     list-style-type: none;
@@ -470,9 +442,6 @@
   .rounded-\[10px\] {
     border-radius: 10px;
   }
-  .rounded-full {
-    border-radius: calc(infinity * 1px);
-  }
   .rounded-lg {
     border-radius: var(--radius-lg);
   }
@@ -486,10 +455,6 @@
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
-  }
-  .border-\[2\.3px\] {
-    border-style: var(--tw-border-style);
-    border-width: 2.3px;
   }
   .border-b {
     border-bottom-style: var(--tw-border-style);
@@ -506,9 +471,6 @@
   .border-\[rgba\(0\,0\,0\,0\.06\)\] {
     border-color: rgba(0,0,0,0.06);
   }
-  .border-black {
-    border-color: var(--color-black);
-  }
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
@@ -518,9 +480,6 @@
   .bg-\[\#ffb84d\] {
     background-color: #ffb84d;
   }
-  .bg-black {
-    background-color: var(--color-black);
-  }
   .bg-black\/40 {
     background-color: color-mix(in srgb, #000 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -529,12 +488,6 @@
   }
   .bg-white {
     background-color: var(--color-white);
-  }
-  .object-cover {
-    object-fit: cover;
-  }
-  .p-2 {
-    padding: calc(var(--spacing) * 2);
   }
   .p-2\.25 {
     padding: calc(var(--spacing) * 2.25);
@@ -619,14 +572,8 @@
   .text-\[1\.3rem\] {
     font-size: 1.3rem;
   }
-  .text-\[1\.4rem\] {
-    font-size: 1.4rem;
-  }
   .text-\[1\.5rem\] {
     font-size: 1.5rem;
-  }
-  .text-\[1\.75rem\] {
-    font-size: 1.75rem;
   }
   .text-\[1rem\] {
     font-size: 1rem;
@@ -678,9 +625,6 @@
   .no-underline {
     text-decoration-line: none;
   }
-  .underline {
-    text-decoration-line: underline;
-  }
   .opacity-0 {
     opacity: 0%;
   }
@@ -695,10 +639,6 @@
   .shadow-\[10px_10px_5px_rgba\(0\,0\,0\,0\.15\)\] {
     --tw-shadow: 10px 10px 5px var(--tw-shadow-color, rgba(0,0,0,0.15));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-  .outline {
-    outline-style: var(--tw-outline-style);
-    outline-width: 1px;
   }
   .transition {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
@@ -1079,11 +1019,6 @@ a[title="Google"] {
   inherits: false;
   initial-value: 0 0 #0000;
 }
-@property --tw-outline-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
 @property --tw-duration {
   syntax: "*";
   inherits: false;
@@ -1120,7 +1055,6 @@ a[title="Google"] {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
-      --tw-outline-style: solid;
       --tw-duration: initial;
       --tw-ease: initial;
     }

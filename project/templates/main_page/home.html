@@ -63,7 +63,7 @@
     <!-- Alerta -->
     <div class="text-center mb-[25px]">
       <h2 class="m-0 text-black font-semibold text-[1.5rem]">Perdeu o horário da coleta?</h2>
-      <a href="#" class="text-[#7083D9] no-underline font-semibold text-[1.2rem] hover:underline">Crie um alerta para lembrar</a>
+      <a href="#" id="create-alert-link" data-create-url="{% url 'create_event' %}" class="text-[#7083D9] no-underline font-semibold text-[1.2rem] hover:underline">Crie um alerta para lembrar</a>
     </div>
 
   <!-- Últimas coletas -->
@@ -376,6 +376,53 @@
   }
 
   // Listener para mudança no dropdown
+  // Helpers para criação de alerta no Google Calendar via AJAX
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+
+  async function createAlertFromPage() {
+    const dateText = document.getElementById('proxima-coleta-date').textContent.trim();
+    const timeText = document.getElementById('horario-previsto').textContent.trim();
+    if (!dateText || dateText.includes('--') || !timeText || timeText.includes('--')) {
+      alert('Não há data/hora disponível para criar o alerta.');
+      return;
+    }
+    const linkEl = document.getElementById('create-alert-link');
+    const url = (linkEl && linkEl.dataset && linkEl.dataset.createUrl) ? linkEl.dataset.createUrl : '{% url 'create_event' %}';
+    const csrftoken = getCookie('csrftoken');
+    try {
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({date: dateText, time: timeText})
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+           if (data && data.redirect) {
+             // usuário não autenticado com Google: redirecionar para login
+             window.location.href = data.redirect;
+             return;
+           }
+           alert('Erro ao criar alerta: ' + (data.error || resp.statusText));
+           return;
+        }
+        // Sucesso
+        alert('Alerta criado com sucesso no seu Google Calendar.');
+        if (data.link) {
+          window.open(data.link, '_blank');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro ao criar alerta.');
+    }
+  }
+
   document.getElementById('dropdown-bairros').addEventListener('change', function() {
     const bairro = this.value;
 
@@ -443,6 +490,14 @@
       }
     } else {
       dropdown.value = 'todos';
+    }
+    // conectar listener do botão/link de criação de alerta
+    const createLink = document.getElementById('create-alert-link');
+    if (createLink) {
+      createLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        createAlertFromPage();
+      });
     }
   });
 </script>
