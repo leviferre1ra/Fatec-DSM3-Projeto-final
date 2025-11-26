@@ -66,5 +66,150 @@ a[title="Google"] {
     }
 }
 
+/* ===================== Responsivo (mobile) ===================== */
+@media (max-width: 768px) {
+  /* menu lateral ocupa menos largura no mobile */
+  #menu {
+    width: min(88vw, 320px);
+  }
+
+  /* transformar layout em coluna (caso o Tailwind não esteja aplicando por algum motivo) */
+  .grid { 
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* mapa no topo */
+  main {
+    order: -1;
+  }
+
+  /* mapa ocupa a altura correta */
+  #map {
+    height: 52vh !important;
+    min-height: 300px;
+  }
+
+  /* aside vem após o mapa */
+  aside {
+    order: 0;
+    padding: 16px !important;
+    max-height: none;
+    overflow-y: auto;
+    box-shadow: none;
+  }
+
+  #div-dropdown-bairros {
+    margin-top: 8px;
+  }
+
+  #dropdown-bairros {
+    margin-bottom: 12px;
+
+  }
+
+  /* contagem maior e ajustável */
+  #countdown {
+    font-size: clamp(2rem, 10vw, 3.5rem) !important;
+    line-height: 1;
+  }
+
+  /* modal central ocupa quase toda a largura no mobile */
+  #help-modal > div,
+  #feedback-modal > div {
+    width: 94% !important;
+    max-width: 420px;
+    padding: 16px;
+  }
+
+  /* tornar lista de últimas coletas legível no mobile */
+  #ultimas-coletas-list li {
+    font-size: 0.95rem;
+    padding: 8px 6px;
+  }
+
+  /* Compactar ALERT modal para mobile */
+  #alert-overlay {
+    background: rgba(0,0,0,0.55);
+  }
+
+  /* Modal container menor e rolável */
+  #alert-modal {
+    padding: 55px;
+  }
+  #alert-modal > div {
+    width: 94% !important;
+    max-width: 360px !important;
+    padding: 14px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+
+  /* Tipografia e espaçamentos reduzidos */
+  #alert-modal h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  #alert-modal form {
+    font-size: 0.92rem;
+    gap: 6px;
+  }
+  #alert-modal label {
+    font-size: 0.88rem;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Inputs e textarea menores */
+  #alert-modal input[type="date"],
+  #alert-modal input[type="time"],
+  #alert-modal input[type="number"],
+  #alert-modal textarea {
+    padding: 8px !important;
+    font-size: 0.92rem !important;
+    border-radius: 8px !important;
+  }
+
+  /* Dias da semana - menos espaço */
+  #alert-modal .grid.grid-cols-4 {
+    gap: 6px;
+  }
+  #alert-modal .grid.grid-cols-4 label {
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #alert-modal .day-checkbox {
+    transform: scale(0.95);
+  }
+
+  /* Botões menores */
+  #alert-modal .flex.justify-end button,
+  #alert-modal button {
+    padding: 8px 10px !important;
+    font-size: 0.9rem !important;
+    border-radius: 8px !important;
+  }
+
+  /* Status e lista */
+  #alert-status {
+    font-size: 0.85rem !important;
+    padding-top: 4px;
+  }
+  #alerts-list li {
+    font-size: 0.86rem;
+  }
+
+  /* reduz margens gerais para caber melhor */
+  #alert-modal .bg-white.rounded-lg {
+    padding: 10px;
+  }
+}
+/* ================================================================ */
+
 
 
