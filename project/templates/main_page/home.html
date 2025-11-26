@@ -14,7 +14,7 @@
 
     <!-- Modal de seleção de bairro -->
     <div id="div-dropdown-bairros"  class="bg-white mt-10 rounded-lg max-w-md text-center">
-        <select id="dropdown-bairros" class="w-full p-3 mb-10 border border-gray-300 rounded-lg text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
+        <select id="dropdown-bairros" class="w-full p-3 mb-10 border border-gray-300 rounded-lg md:text-lg focus:ring-[#7083D9] focus:border-[#7083D9]">
             <option value="" disabled selected>Escolha um bairro...</option>
             <option value="todos">Todos</option>
             <option value="Anhanguera">Anhanguera</option>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- ALERT Modal -->
-    <div id="alert-overlay" class="fixed inset-0 bg-black/50 hidden z-60"></div>
+    <div id="alert-overlay" class="fixed inset-0 bg-black/50 hidden z-70"></div>
     <div id="alert-modal" class="fixed inset-0 flex items-center justify-center hidden z-70 p-4">
       <div class="bg-white rounded-lg w-full max-w-md p-5 shadow-lg">
         <div class="flex items-center justify-between mb-3">
@@ -90,14 +90,35 @@
           </div>
           <div>
             <label class="block font-medium mb-3 mt-5">Dias da semana (marque para repetir semanalmente)</label>
-            <div class="grid grid-cols-4 text-xs">
-              <label><input type="checkbox" value="0" class="day-checkbox" /> Dom</label>
-              <label><input type="checkbox" value="1" class="day-checkbox" /> Seg</label>
-              <label><input type="checkbox" value="2" class="day-checkbox" /> Ter</label>
-              <label><input type="checkbox" value="3" class="day-checkbox" /> Qua</label>
-              <label><input type="checkbox" value="4" class="day-checkbox" /> Qui</label>
-              <label><input type="checkbox" value="5" class="day-checkbox" /> Sex</label>
-              <label><input type="checkbox" value="6" class="day-checkbox" /> Sáb</label>
+            <div class="grid grid-cols-4 gap-2 text-xs">
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="0" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Dom</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="1" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Seg</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="2" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Ter</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="3" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Qua</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="4" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Qui</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="5" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Sex</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" value="6" class="day-checkbox h-4 w-4 rounded border border-gray-300 accent-[#7083D9] checked:bg-[#7083D9] checked:border-[#7083D9] focus:ring-2 focus:ring-[#7083D9]/30" />
+                <span>Sáb</span>
+              </label>
             </div>
           </div>
 
@@ -141,8 +162,9 @@
           menuOverlay.classList.add('opacity-0');
         }
         if (menuBtn) {
-          menuBtn.classList.add('pointer-events-none', 'opacity-50');
-          menuBtn.setAttribute('aria-disabled','true');
+          // esconder totalmente o botão hambúrguer enquanto o modal de alerta estiver aberto
+          menuBtn.classList.add('hidden');
+          menuBtn.setAttribute('aria-hidden', 'true');
         }
 
         overlay.classList.remove('hidden'); 
@@ -157,9 +179,12 @@
         status.textContent=''; 
         form.reset(); 
 
-        // reativa o botão hambúrguer
+        // reativa (mostra) o botão hambúrguer
         const menuBtn = document.getElementById('menu-btn');
         if (menuBtn) {
+          menuBtn.classList.remove('hidden');
+          menuBtn.removeAttribute('aria-hidden');
+          // em caso de classes anteriores, também tentar remover possíveis estados de desabilitado
           menuBtn.classList.remove('pointer-events-none', 'opacity-50');
           menuBtn.removeAttribute('aria-disabled');
         }
@@ -733,8 +758,8 @@
     } else {
       dropdown.value = 'todos';
     }
-    // conectar listener do botão/link de criação de alerta
-    const createLink = document.getElementById('create-alert-link');
+    // conectar listener do botão de salvar alerta no modal (antes era '#create-alert-link')
+    const createLink = document.getElementById('alert-save');
     if (createLink) {
       createLink.addEventListener('click', function(e) {
         e.preventDefault();
