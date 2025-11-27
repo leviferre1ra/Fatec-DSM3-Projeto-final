@@ -43,7 +43,7 @@ def create_event(request):
     # Tentar obter payload JSON ou form-data (compatibilidade)
     payload = {}
     try:
-        if request.content_type == 'application/json':
+        if request.content_type and request.content_type.startswith('application/json'):
             payload = json.loads(request.body.decode('utf-8') or '{}')
         else:
             payload = request.POST
@@ -145,61 +145,67 @@ def schedule_weekly(request):
 
     service = get_user_calendar_service(token)
 
-    # receber payload JSON ou form
+    # receber payload JSON (espera { days: [...], date: 'dd/mm/yyyy', time: 'HH:MM' })
     payload = {}
     try:
-        if request.content_type == 'application/json':
+        if request.content_type and request.content_type.startswith('application/json'):
             payload = json.loads(request.body.decode('utf-8') or '{}')
         else:
             payload = request.POST
     except Exception:
         payload = {}
 
-    # obter dias e horário
-    days = payload.get('days') or payload.getlist('days') if hasattr(payload, 'getlist') else None
-    # aceitar string CSV também
-    if isinstance(days, str):
+    # extrair days (aceita lista de códigos BYDAY, índices 0..6, ou nomes em pt/en)
+    raw_days = None
+    if isinstance(payload, dict):
+        raw_days = payload.get('days')
+    elif hasattr(payload, 'getlist'):
         try:
-            # tentar JSON array
-            days = json.loads(days)
+            raw_days = payload.getlist('days')
         except Exception:
-            days = [d.strip() for d in days.split(',') if d.strip()]
+            raw_days = None
 
-    if not days or len(days) == 0:
-        return JsonResponse({'error': 'Nenhum dia fornecido. Envie days como lista de dias.'}, status=400)
+    # normalizar string -> list
+    if isinstance(raw_days, str):
+        try:
+            raw_days = json.loads(raw_days)
+        except Exception:
+            raw_days = [d.strip() for d in raw_days.split(',') if d.strip()]
 
-    # mapear nomes para BYDAY (aceita português e códigos)
-    dia_map = {
-        'domingo': 'SU', 'domingo': 'SU', 'sun': 'SU', 'su': 'SU', 'domingo': 'SU',
-        'segunda': 'MO', 'segunda-feira': 'MO', 'segunda': 'MO', 'mon': 'MO', 'mo': 'MO',
-        'terca': 'TU', 'terça': 'TU', 'terca-feira': 'TU', 'terca': 'TU', 'tue': 'TU', 'tu': 'TU',
-        'quarta': 'WE', 'quarta-feira': 'WE', 'wed': 'WE', 'we': 'WE',
-        'quinta': 'TH', 'quinta-feira': 'TH', 'thu': 'TH', 'th': 'TH',
-        'sexta': 'FR', 'sexta-feira': 'FR', 'fri': 'FR', 'fr': 'FR',
-        'sabado': 'SA', 'sábado': 'SA', 'saturday': 'SA', 'sat': 'SA', 'sa': 'SA'
-    }
+    dayCodeMap = ['SU','MO','TU','WE','TH','FR','SA']
+    dia_map = {'domingo':'SU','segunda':'MO','terca':'TU','quarta':'WE','quinta':'TH','sexta':'FR','sabado':'SA'}
 
     bydays = []
-    for d in days:
-        if not d: continue
-        key = str(d).lower().strip()
-        # normalizar acentos
-        import unicodedata
-        key = unicodedata.normalize('NFD', key)
-        key = ''.join(ch for ch in key if not unicodedata.combining(ch))
-        code = dia_map.get(key) or dia_map.get(key.split()[0]) if isinstance(key, str) else None
-        if not code:
-            # aceitar já códigos como MO,TU etc
-            up = str(d).upper()
+    if isinstance(raw_days, (list, tuple)):
+        for d in raw_days:
+            if d is None:
+                continue
+            # números 0..6
+            try:
+                if isinstance(d, (int, float)) or (isinstance(d, str) and d.isdigit()):
+                    idx = int(d)
+                    if 0 <= idx <= 6:
+                        code = dayCodeMap[idx]
+                        if code not in bydays: bydays.append(code)
+                        continue
+            except Exception:
+                pass
+            s = str(d).strip()
+            up = s.upper()
             if up in ['MO','TU','WE','TH','FR','SA','SU']:
-                code = up
-        if code and code not in bydays:
-            bydays.append(code)
+                if up not in bydays: bydays.append(up); continue
+            # tentar nomes em portugues
+            try:
+                import unicodedata
+                key = unicodedata.normalize('NFD', s.lower())
+                key = ''.join(ch for ch in key if not unicodedata.combining(ch))
+                if key in dia_map:
+                    code = dia_map[key]
+                    if code not in bydays: bydays.append(code)
+            except Exception:
+                continue
 
-    if not bydays:
-        return JsonResponse({'error': 'Dias inválidos. Forneça nomes de dias válidos.'}, status=400)
-
-    # parse horário/data (opcional): date+time or datetime ISO
+    # aceitar também payload.date + payload.time (date no formato dd/mm/yyyy)
     start = None
     try:
         if payload and payload.get('datetime'):
@@ -214,12 +220,14 @@ def schedule_weekly(request):
     except Exception:
         start = None
 
-    # se não vier start, escolher próximo dia do primeiro byday
+    # se não vier start, escolher próximo dia do primeiro byday (ou erro se não tiver days)
     if not start:
-        today = datetime.date.today()
-        # map byday code to weekday number (0=Monday?) Python weekday: Monday=0... adjust
+        if not bydays:
+            return JsonResponse({'error': 'Nenhum dia fornecido. Envie days como lista de dias.'}, status=400)
+        # map byday code to weekday number (Monday=0..Sunday=6)
         code_to_wd = {'MO':0,'TU':1,'WE':2,'TH':3,'FR':4,'SA':5,'SU':6}
         first_code = bydays[0]
+        today = datetime.date.today()
         target_wd = code_to_wd.get(first_code, 0)
         days_ahead = (target_wd - today.weekday() + 7) % 7
         if days_ahead == 0:
