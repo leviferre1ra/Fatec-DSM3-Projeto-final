@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'user_data_api',
     'city_data_api',
+    'calendar_api',
 ]
 
 MIDDLEWARE = [
@@ -91,10 +93,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
+    'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL')
+        ),
     'mongodb': {
         'ENGINE': 'django_mongodb_backend',
         'NAME': 'mongodb',
@@ -152,16 +153,27 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
 LOGIN_REDIRECT_URL = "home" 
 
+SOCIALACCOUNT_STORE_TOKENS = True
+
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'name':'Google',
-            'client_id': os.environ.get('SOCIAL_APP_CLIENT_ID'),
-            'secret': os.environ.get('SOCIAL_APP_SECRET_KEY'),
-            'key': ''
-        }
+    "google": {
+        "APP": {
+            "client_id": os.environ.get("SOCIAL_APP_CLIENT_ID"),
+            "secret": os.environ.get("SOCIAL_APP_SECRET_KEY"),
+            "key": ""
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+            "https://www.googleapis.com/auth/calendar",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+            "prompt": "consent",
+        },
     }
 }
+
 
 ACCOUNT_FORMS = {
     'signup': 'project.forms.CustomSignupForm',
@@ -190,3 +202,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email settings
+# ...existing code...
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'suporte.deolhonolixo@gmail.com'
+EMAIL_HOST_PASSWORD = 'obov pjor lbtv ptcj'   # use App Password (Gmail) ou credenciais do provedor
+DEFAULT_FROM_EMAIL = 'suporte.deolhonolixo@gmail.com'
+CONTACT_EMAIL = 'suporte.deolhonolixo@gmail.com'

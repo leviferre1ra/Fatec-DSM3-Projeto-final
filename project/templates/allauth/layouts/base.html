@@ -33,7 +33,7 @@
           {% if user.is_authenticated %}
           <!-- BOTÃO HAMBÚRGUER -->
           <button id="menu-btn"
-            class="fixed top-4 right-4 z-[60] flex flex-col justify-between w-9 h-9 items-center p-2.25 hover:bg-[#5463a5] transition rounded-md bg-[#7083D9] focus:outline-none">
+            class="fixed top-4 right-4 z-60 flex flex-col justify-between w-9 h-9 items-center p-2.25 hover:bg-[#5463a5] transition rounded-md bg-[#7083D9] focus:outline-none">
             <span class="block h-0.5 w-6 bg-white rounded transition-all duration-300"></span>
             <span class="block h-0.5 w-6 bg-white rounded transition-all duration-300"></span>
             <span class="block h-0.5 w-6 bg-white rounded transition-all duration-300"></span>
@@ -173,6 +173,69 @@
     {% block content %}
     {% endblock content %}
 
+    {# --- Ajuda modal e overlay --- #}
+    <div id="help-overlay" class="fixed inset-0 bg-black/50 hidden z-60"></div>
+    <div id="help-modal" class="fixed inset-0 flex items-center justify-center hidden z-70">
+      <div class="bg-white rounded-lg w-[90%] max-w-lg p-6  shadow-lg">
+        <div class="flex items-start justify-between mb-4">
+          <h3 class="text-xl font-semibold">Ajuda e Suporte</h3>
+          <button id="help-close" class="text-gray-500 hover:text-gray-800" aria-label="Fechar">✕</button>
+        </div>
+        <div class="text-sm text-gray-700 space-y-3">
+          <p><strong>1. Informações detalhadas sobre a coleta: <br></strong>
+            Para obter informações detalhadas sobre a coleta de resíduos em um bairro específico, acesse a seção <strong>"Selecione um bairro..."</strong> no Menu Principal e selecione o bairro desejado.
+          </p>
+          <p><strong>2. Acesso ao Menu Opções: <br></strong>
+            Para acessar o Menu Opções, clique no ícone de hambúrguer (três linhas horizontais) localizado no canto superior direito da tela. A partir daí, você pode navegar para diferentes seções do site.
+          </p>
+          <p><strong>3. Criar um lembrete: <br></strong>
+            Crie um alerta personalizado para te lembrar a data e hora da coleta do bairro desejado, selecione a opção <strong>"Crie um alerta para lembrar"</strong>  no Menu Principal e configure o lembrete de acordo com as suas preferências.
+          </p>
+          <p><strong>4. Contatar o suporte: <br></strong>
+           Se precisar de suporte personalizado, envie uma mensagem descrevendo o problema. Iremos responder o mais rápido possível!</p>
+          <strong>Contato:</strong> <a href="#feedback" class="text-[#7083D9] hover:text-[#5463a5]"> suporte.deolhonolixo@gmail.com</a></p>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button id="help-ok" class="px-4 py-2 rounded bg-[#7083D9] text-white hover:bg-[#5463a5]">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+        {# --- Feedback modal e overlay (substitui a versão estática) --- #}
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/50 hidden z-60"></div>
+    <div id="feedback-modal" class="fixed inset-0 flex items-center justify-center hidden z-70">
+      <div class="bg-white rounded-lg w-[90%] max-w-lg p-6 shadow-lg">
+        <div class="flex items-start justify-between mb-4">
+          <h3 class="text-xl font-semibold">Sugestões e Feedback</h3>
+          <button id="feedback-close" class="text-gray-500 hover:text-gray-800" aria-label="Fechar">✕</button>
+        </div>
+
+        <form id="feedback-form" class="space-y-3">
+          <label class="text-sm block">Avaliação (1 a 5)</label>
+          <select id="feedback-rating" name="rating" class="w-full p-2 border rounded">
+            <option value="5">5 — Excelente</option>
+            <option value="4">4 — Bom</option>
+            <option value="3">3 — Regular</option>
+            <option value="2">2 — Ruim</option> 
+            <option value="1">1 — Péssimo</option>
+          </select>
+
+          <label class="text-sm block mt-3">Email de contato</label>
+          <input id="feedback-email" name="email" type="email" class="w-full p-2 border rounded" placeholder="contato@exemplo.com" value="contato@exemplo.com">
+
+          <label class="text-sm block mt-3">Mensagem</label>
+          <textarea id="feedback-message" name="message" rows="5" class="w-full p-2 border rounded" placeholder="Escreva sua sugestão ou problema..."></textarea>
+
+          <div class="flex justify-end items-center gap-3 mt-2 ">
+            <button type="button" id="feedback-cancel" class="px-4 py-2 rounded border hover:bg-[#5463a5]">Cancelar</button>
+            <button type="submit" id="feedback-send" class="px-4 py-2 rounded bg-[#7083D9] text-white hover:bg-[#5463a5] ">Enviar</button>
+          </div>
+
+          <p id="feedback-status" class="text-sm mt-2 hidden"></p>
+        </form>
+      </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
         // === MENU LATERAL DIREITO ===
@@ -219,6 +282,124 @@
             }
             });
         }
+
+        // === Ajuda / Suporte modal handlers ===
+        const helpLinks = document.querySelectorAll('a[href="#ajuda"]');
+        const helpModal = document.getElementById('help-modal');
+        const helpOverlay = document.getElementById('help-overlay');
+        const helpCloseBtn = document.getElementById('help-close');
+        const helpOkBtn = document.getElementById('help-ok');
+ 
+        function openHelp() {
+          helpOverlay.classList.remove('hidden');
+          helpModal.classList.remove('hidden');
+        }
+        function closeHelp() {
+          helpOverlay.classList.add('hidden');
+          helpModal.classList.add('hidden');
+        }
+ 
+        if (helpLinks && helpLinks.length) {
+          helpLinks.forEach(el => {
+            el.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              // fechar menu (se aberto) para evitar sobreposição
+              if (menu && !menu.classList.contains('translate-x-full')) toggleMenu();
+              // abrir modal após pequeno delay para garantir menu fechado
+              setTimeout(openHelp, 200);
+            });
+          });
+        }
+        helpOverlay.addEventListener('click', closeHelp);
+        if (helpCloseBtn) helpCloseBtn.addEventListener('click', closeHelp);
+        if (helpOkBtn) helpOkBtn.addEventListener('click', closeHelp);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeHelp();
+        });
+
+        // === Feedback / Suporte modal handlers & envio AJAX ===
+        const feedbackLinks = document.querySelectorAll('a[href="#feedback"]');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackOverlay = document.getElementById('feedback-overlay');
+        const feedbackCloseBtn = document.getElementById('feedback-close');
+        const feedbackCancelBtn = document.getElementById('feedback-cancel');
+        const feedbackForm = document.getElementById('feedback-form');
+        const feedbackStatus = document.getElementById('feedback-status');
+
+        function getCookie(name) {
+          const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+          return v ? v.pop() : '';
+        }
+        function openFeedback() {
+          feedbackOverlay.classList.remove('hidden');
+          feedbackModal.classList.remove('hidden');
+        }
+        function closeFeedback() {
+          feedbackOverlay.classList.add('hidden');
+          feedbackModal.classList.add('hidden');
+          feedbackStatus.classList.add('hidden');
+          feedbackStatus.textContent = '';
+          feedbackForm.reset();
+        }
+ 
+        // Quando o link de contato for clicado (pode estar no menu, footer ou dentro do modal de Ajuda),
+        // garantimos que o modal de Ajuda (#help-modal) seja fechado primeiro para evitar overlays duplos.
+        if (feedbackLinks && feedbackLinks.length) {
+          feedbackLinks.forEach(el => {
+            el.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              // fechar menu lateral se estiver aberto
+              if (menu && !menu.classList.contains('translate-x-full')) toggleMenu();
+
+              // Se o help modal estiver aberto, fechá-lo antes de abrir feedback
+              const helpIsOpen = typeof helpModal !== 'undefined' && helpModal && !helpModal.classList.contains('hidden');
+              if (helpIsOpen) {
+                closeHelp(); // fecha help overlay/modal
+                // aguardar pequeno delay para garantir que overlay foi removido visualmente
+                setTimeout(openFeedback, 200);
+              } else {
+                // abrir feedback normalmente
+                setTimeout(openFeedback, 120);
+              }
+            });
+          });
+        }
+        feedbackOverlay.addEventListener('click', closeFeedback);
+        if (feedbackCloseBtn) feedbackCloseBtn.addEventListener('click', closeFeedback);
+        if (feedbackCancelBtn) feedbackCancelBtn.addEventListener('click', closeFeedback);
+ 
+        feedbackForm.addEventListener('submit', (e) => {
+         e.preventDefault();
+         feedbackStatus.classList.remove('hidden');
+         feedbackStatus.textContent = 'Enviando...';
+ 
+         const payload = {
+           rating: document.getElementById('feedback-rating').value,
+           email: document.getElementById('feedback-email').value,
+           message: document.getElementById('feedback-message').value
+         };
+ 
+         fetch("{% url 'feedback' %}", {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'X-CSRFToken': getCookie('csrftoken')
+           },
+           body: JSON.stringify(payload)
+         })
+         .then(r => r.json())
+         .then(json => {
+           if (json.success) {
+             feedbackStatus.textContent = 'Mensagem enviada. Obrigado!';
+             setTimeout(closeFeedback, 1200);
+           } else {
+             feedbackStatus.textContent = 'Erro: ' + (json.error || 'Não foi possível enviar');
+           }
+         }).catch(err => {
+           feedbackStatus.textContent = 'Erro: ' + (err.message || err);
+         });
+       });
+       // === fim feedback ===
         });
         </script>
 

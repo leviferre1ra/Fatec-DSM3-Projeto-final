@@ -5,6 +5,9 @@ from django.conf import settings
 import requests
 import json
 from datetime import datetime
+from django.views.decorators.http import require_POST
+from django.core.mail import send_mail
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 @login_required
@@ -110,3 +113,24 @@ def converter_para_geojson(bairros_data):
         "type": "FeatureCollection",
         "features": features
     }
+
+@require_POST
+@login_required
+def feedback(request):
+    """Recebe feedback via AJAX e envia por email."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+    rating = data.get('rating', '')
+    email = data.get('email', '')
+    message = data.get('message', '')
+    subject = f'Feedback — avaliação {rating}'
+    body = f'Email: {email}\n\nMensagem:\n{message}'
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@exemplo.com')
+    to_email = [getattr(settings, 'CONTACT_EMAIL', 'suporte.deolhonolixo@gmail.com')]
+    try:
+        send_mail(subject, body, from_email, to_email, fail_silently=False)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': True})
