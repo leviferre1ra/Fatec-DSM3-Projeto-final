@@ -1,0 +1,55 @@
+{% extends "socialaccount/base_entrance.html" %}
+{% load i18n %}
+{% load allauth %}
+{% block head_title %}
+    {% trans "Sign In" %}
+{% endblock head_title %}
+{% block content %}
+<main class="flex flex-row lg:min-h-screen items-center justify-center bg-[#8594d4]">
+    <section class="w-full max-w-[600px] px-6 flex flex-col items-center min-h-screen overflow-y-scroll max-h-screen py-9 scrollbar bg-white">
+            <h1 class="text-7xl lg:text-8xl font-bold text-center leading-[0.8]">
+
+            <span class="block">
+                {% if process == "connect" %}
+                    {% element h1 %}
+                    {% blocktrans with provider.name as provider %}Conectar{% endblocktrans %}
+                    {% endelement %}
+                {% else %}
+                    {% element h1 %}
+                    {% blocktrans with provider.name as provider %}Entrar{% endblocktrans %}
+                    {% endelement %}
+                {% endif %}
+            </span>
+
+             <span class="block -mt-2.2">
+                {% if process == "connect" %}
+                    {% element h1 %}
+                    {% blocktrans with provider.name as provider %}via {{ provider }}{% endblocktrans %}
+                    {% endelement %}
+                {% else %}
+                    {% element h1 %}
+                    {% blocktrans with provider.name as provider %}via {{ provider }}{% endblocktrans %}
+                    {% endelement %}
+                {% endif %}
+            </span>
+            </h1>
+    {% if process == "connect" %}
+        
+        <p class="text-center mt-13 font-semibold">
+            {% blocktrans with provider.name as provider %}You are about to connect a new third-party account from {{ provider }}.{% endblocktrans %}
+        </p>
+    {% else %}
+     
+        <p class="text-center mt-13 font-semibold">
+            {% blocktrans with provider.name as provider %}You are about to sign in using a third-party account from {{ provider }}.{% endblocktrans %}
+        </p>
+    {% endif %}
+    {% element form method="post" no_visible_fields=True %}
+        {% slot actions %}
+            {% csrf_token %}
+            {% element button type="submit" %}
+                {% trans "Continue" %}
+            {% endelement %}
+        {% endslot %}
+    {% endelement %}
+{% endblock content %}
