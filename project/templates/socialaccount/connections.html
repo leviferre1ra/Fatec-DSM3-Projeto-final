@@ -1,0 +1,63 @@
+{% extends "socialaccount/base_manage.html" %}
+{% load i18n %}
+{% load allauth %}
+{% block head_title %}
+    {% trans "Account Connections" %}
+{% endblock head_title %}
+{% block content %}
+<main class="flex flex-row lg:min-h-screen items-center justify-center bg-[#8594d4]">
+    <section class="w-full max-w-[600px] px-6 flex flex-col items-center min-h-screen overflow-y-scroll max-h-screen py-9 scrollbar bg-white">
+            <h1 class="text-7xl lg:text-8xl font-bold text-center leading-[0.8]">
+            <span class="block">Conexões</span>
+            <span class="block -mt-2.2">de conta</span>
+            </h1>
+    {% if form.accounts %}
+        
+        <p class="text-center mt-13 font-semibold">
+            {% blocktrans %}You can sign in to your account using any of the following third-party accounts:{% endblocktrans %}
+        </p>
+        {% url 'socialaccount_connections' as action_url %}
+        {% element form form=form method="post" action=action_url %}
+            {% slot body %}
+                {% csrf_token %}
+                {% for acc in form.fields.account.choices %}
+                    {% with account=acc.0.instance.get_provider_account %}
+                    <div id="emailaddress_radios">
+                        {% setvar radio_id %}
+                            id_account_{{ account.account.pk }}
+                        {% endsetvar %}
+                        {% setvar tags %}
+                            socialaccount,{{ account.account.provider }}
+                        {% endsetvar %}
+                        {% element field id=radio_id type="radio" name="account" value=account.account.pk %}
+                            {% slot label %}
+                                {{ account }}
+                                {% element badge tags=tags %}
+                                    {{ account.get_brand.name }}
+                                {% endelement %}                               
+                            {% endslot %}
+                        {% endelement %}
+                    </div> 
+                    {% endwith %}
+                {% endfor %}
+            {% endslot %}
+
+            {% slot actions %}
+             <div id="email_actions">
+                {% element button tags="delete,danger" type="submit" %}
+                    {% trans 'Remove' %}
+                {% endelement %}
+             </div> 
+            {% endslot %}
+        {% endelement %}
+    {% else %}
+        {% element p %}
+            {% trans 'You currently have no third-party accounts connected to this account.' %}
+        {% endelement %}
+    {% endif %}
+        <h2 class="text-center mb-3 mt-9 font-semibold">
+            Adicionar uma conta de terceiros
+        </h2>
+    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+    {% include "socialaccount/snippets/login_extra.html" %}
+{% endblock content %}
