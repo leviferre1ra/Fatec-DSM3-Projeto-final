@@ -5,8 +5,7 @@ form{
     @apply w-full mt-10
 }
 
-/* evitar aplicar estilos globais de label sobre o modal de alerta */
-form:not(#alert-form) label{
+form:not(#alert-form) label:not([for="id_remember"]){
   @apply pl-5 text-xl block mb-3
 }
 
@@ -22,8 +21,6 @@ form #id_password {
     @apply w-full rounded-xl border border-[#7083D9] py-4 pr-12 text-xl pl-5 
 }
 
-
-
 form button{
     @apply w-full py-4 bg-[#7083D9] hover:bg-[#5463a5] rounded-xl text-white font-medium text-xl cursor-pointer 
 }
@@ -33,10 +30,9 @@ form #btn-signup{
 }
 
 form label[for="id_remember"]{
-    @apply inline mb-10 
+    @apply inline pl-5 text-xl mb-10 
 }
 
-/* não sobrescrever checkboxes dentro do #alert-form (usamos utilitários Tailwind no modal) */
 form:not(#alert-form) input[type="checkbox"]{
   @apply inline mb-10 cursor-pointer transition-all shadow hover:shadow-md border border-slate-300 bg-white checked:bg-[#7083D9] checked:border-[#7083D9]
 }
